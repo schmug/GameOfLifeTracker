@@ -200,23 +200,62 @@ export default function GameGrid({
     };
   }, [gameRunning, gameLoop]);
   
-  // Toggle cell state on click
-  const toggleCell = useCallback((rowIndex: number, colIndex: number) => {
+  // State for keeping track of mouse state
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [drawMode, setDrawMode] = useState<'create' | 'erase'>('create');
+
+  // Function to toggle cell at a specific position
+  const toggleCell = useCallback((rowIndex: number, colIndex: number, forcedState?: boolean) => {
     if (gameRunning) return;
     
     const newGrid = [...grid];
     newGrid[rowIndex] = [...newGrid[rowIndex]];
     const cell = newGrid[rowIndex][colIndex];
     
-    // Toggle alive state and assign a new random color if it's becoming alive
+    // If forcedState is provided, use it; otherwise toggle
+    const newAlive = forcedState !== undefined ? forcedState : !cell.alive;
+    
+    // Update cell with new state
     newGrid[rowIndex][colIndex] = {
-      alive: !cell.alive,
-      color: cell.alive ? cell.color : getRandomColor()
+      alive: newAlive,
+      color: newAlive && !cell.alive ? getRandomColor() : cell.color
     };
     
     setGrid(newGrid);
     updateStats();
   }, [gameRunning, grid, updateStats]);
+  
+  // Handle mouse down to start drawing
+  const handleMouseDown = useCallback((rowIndex: number, colIndex: number) => {
+    if (gameRunning) return;
+    
+    // Determine draw mode based on initial cell state
+    const initialCellState = grid[rowIndex][colIndex].alive;
+    setDrawMode(initialCellState ? 'erase' : 'create');
+    
+    // Toggle this cell
+    toggleCell(rowIndex, colIndex);
+    
+    // Mark that we're drawing
+    setIsDrawing(true);
+  }, [gameRunning, grid, toggleCell]);
+  
+  // Handle mouse enter while drawing
+  const handleMouseEnter = useCallback((rowIndex: number, colIndex: number) => {
+    if (!isDrawing || gameRunning) return;
+    
+    // Apply the appropriate action based on draw mode
+    if (drawMode === 'create') {
+      toggleCell(rowIndex, colIndex, true); // Force cell to be alive
+    } else {
+      toggleCell(rowIndex, colIndex, false); // Force cell to be dead
+    }
+  }, [isDrawing, gameRunning, drawMode, toggleCell]);
+  
+  // Handle mouse up to stop drawing
+  const handleMouseUp = useCallback(() => {
+    setIsDrawing(false);
+  }, []);
   
   // Increase grid size
   const increaseGridSize = useCallback(() => {
@@ -250,6 +289,17 @@ export default function GameGrid({
   
   return (
     <div className="relative border border-grid rounded-lg shadow-sm bg-white overflow-hidden">
+      {/* Grid painting notice */}
+      {!gameRunning && (
+        <div className="absolute top-4 left-4 z-10 bg-white/80 backdrop-blur-sm rounded-lg shadow-sm px-3 py-2">
+          <span className="text-xs text-gray-500">
+            {isDrawing ? 
+              (drawMode === 'create' ? 'Drawing cells...' : 'Erasing cells...') : 
+              'Click and drag to paint cells'}
+          </span>
+        </div>
+      )}
+      
       {/* Grid size controls */}
       <div className="absolute top-4 right-4 z-10 bg-white/80 backdrop-blur-sm rounded-lg shadow-sm px-3 py-2 flex items-center space-x-2">
         <button 
@@ -275,6 +325,11 @@ export default function GameGrid({
           gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
           aspectRatio: '1/1'
         }}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        // Prevent the default browser drag behavior
+        onDragStart={(e) => e.preventDefault()}
+        draggable="false"
       >
         {grid.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
@@ -283,9 +338,13 @@ export default function GameGrid({
               className="cell border border-grid"
               style={{ 
                 backgroundColor: cell.alive ? cell.color : '#F3F4F6',
-                transition: 'background-color 0.2s ease'
+                transition: 'background-color 0.2s ease',
+                cursor: gameRunning ? 'not-allowed' : 'pointer'
               }}
-              onClick={() => toggleCell(rowIndex, colIndex)}
+              onMouseDown={() => handleMouseDown(rowIndex, colIndex)}
+              onMouseEnter={() => handleMouseEnter(rowIndex, colIndex)}
+              draggable="false"
+              onDragStart={(e) => e.preventDefault()}
             />
           ))
         )}
