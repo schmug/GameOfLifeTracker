@@ -17,7 +17,14 @@ interface HighScore {
   maxPopulation: number;
   longestPattern: number;
   gridSize: number;
-  date: Date;
+  date: Date | string;
+}
+
+// Interface for all-time best scores
+interface AllTimeBestScores {
+  maxGenerations: HighScore | null;
+  maxPopulation: HighScore | null;
+  longestPattern: HighScore | null;
 }
 
 export default function Home() {
@@ -36,19 +43,19 @@ export default function Home() {
   const [initialScoreCreated, setInitialScoreCreated] = useState(false);
 
   // Query for all-time best scores
-  const { data: allTimeBestScores, isLoading: isLoadingBestScores } = useQuery({
+  const { data: allTimeBestScores, isLoading: isLoadingBestScores } = useQuery<AllTimeBestScores>({
     queryKey: ['/api/high-scores/best/all-time'],
   });
 
   // Query for current session high score
-  const { data: sessionHighScore, isLoading: isLoadingSessionScore } = useQuery({
+  const { data: sessionHighScore, isLoading: isLoadingSessionScore } = useQuery<HighScore>({
     queryKey: [`/api/high-scores/${sessionId}`],
     enabled: initialScoreCreated, // Only fetch once the initial score is created
   });
 
   // Create a new high score for this session
-  const createHighScoreMutation = useMutation({
-    mutationFn: async (data: any) => {
+  const createHighScoreMutation = useMutation<HighScore, Error, Omit<HighScore, 'id'>>({
+    mutationFn: async (data) => {
       const res = await apiRequest("POST", "/api/high-scores", data);
       return res.json();
     },
@@ -65,8 +72,8 @@ export default function Home() {
   });
 
   // Update high score for this session
-  const updateHighScoreMutation = useMutation({
-    mutationFn: async (data: any) => {
+  const updateHighScoreMutation = useMutation<HighScore, Error, Partial<HighScore>>({
+    mutationFn: async (data) => {
       const res = await apiRequest("PATCH", `/api/high-scores/${sessionId}`, data);
       return res.json();
     },

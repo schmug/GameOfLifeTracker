@@ -1,5 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { calculateNextGeneration, createEmptyGrid, createRandomGrid } from "@/lib/gameOfLife";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface GameGridProps {
   gridSize: number;
@@ -110,22 +119,40 @@ export default function GameGrid({
     updateStats();
   }, [grid, setGeneration, updateStats]);
   
+  // State for game over dialog
+  const [gameOverDialogOpen, setGameOverDialogOpen] = useState(false);
+  const [gameOverMessage, setGameOverMessage] = useState("");
+  
   // Function for game over actions
   const handleGameOver = useCallback((message: string) => {
-    if (window.confirm(message)) {
-      // Create a random grid
-      const randomGrid = createRandomGrid(gridSize);
-      setGrid(randomGrid);
-      gridRef.current = randomGrid;
-      generationRef.current = 0;
-      setGeneration(0);
-      setStableGenerations(0);
-      updateStats();
-    } else {
-      // User chose not to restart
-      setGameRunning(false);
-    }
-  }, [gridSize, setGeneration, setStableGenerations, updateStats, setGameRunning]);
+    setGameOverMessage(message);
+    setGameOverDialogOpen(true);
+    setGameRunning(false);
+  }, [setGameRunning]);
+  
+  // Restart with random grid
+  const restartWithRandomGrid = useCallback(() => {
+    const randomGrid = createRandomGrid(gridSize);
+    setGrid(randomGrid);
+    gridRef.current = randomGrid;
+    generationRef.current = 0;
+    setGeneration(0);
+    setStableGenerations(0);
+    updateStats();
+    setGameOverDialogOpen(false);
+  }, [gridSize, setGeneration, updateStats]);
+  
+  // Restart with empty grid
+  const restartWithEmptyGrid = useCallback(() => {
+    const emptyGrid = createEmptyGrid(gridSize);
+    setGrid(emptyGrid);
+    gridRef.current = emptyGrid;
+    generationRef.current = 0;
+    setGeneration(0);
+    setStableGenerations(0);
+    updateStats();
+    setGameOverDialogOpen(false);
+  }, [gridSize, setGeneration, updateStats]);
 
   // Game loop
   const gameLoop = useCallback((timestamp: number) => {
@@ -151,13 +178,13 @@ export default function GameGrid({
       
       if (!hasLivingCells) {
         // Game is over - no more living cells
-        handleGameOver('Game over! All cells have died. Would you like to restart?');
+        handleGameOver('Game over! All cells have died.');
         return;
       }
       
       // End condition 2: Pattern has stabilized (handled via stableGenerations)
       if (stableGenerations > 10) {
-        handleGameOver('Game over! Pattern has stabilized for 10 generations. Would you like to restart?');
+        handleGameOver('Game over! Pattern has stabilized for 10 generations.');
         return;
       }
       
