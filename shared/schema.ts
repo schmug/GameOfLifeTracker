@@ -32,6 +32,7 @@ export const insertHighScoreSchema = createInsertSchema(highScores).pick({
   longestPattern: true,
   gridSize: true,
   sessionId: true,
+  date: true,
 });
 
 export type InsertHighScore = z.infer<typeof insertHighScoreSchema>;

@@ -57,7 +57,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/high-scores/:sessionId", async (req, res) => {
     try {
       const { sessionId } = req.params;
-      const validatedData = updateHighScoreSchema.parse(req.body);
+      const updateData = req.body;
+      
+      // If updating and there's no date, add the current date
+      if (!updateData.date) {
+        updateData.date = new Date();
+      }
+      
+      const validatedData = updateHighScoreSchema.parse(updateData);
       
       const updatedHighScore = await storage.updateHighScoreBySessionId(sessionId, validatedData);
       
