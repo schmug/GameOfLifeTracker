@@ -130,29 +130,8 @@ export default function GameGrid({
     setGameRunning(false);
   }, [setGameRunning]);
   
-  // Restart with random grid
-  const restartWithRandomGrid = useCallback(() => {
-    const randomGrid = createRandomGrid(gridSize);
-    setGrid(randomGrid);
-    gridRef.current = randomGrid;
-    generationRef.current = 0;
-    setGeneration(0);
-    setStableGenerations(0);
-    updateStats();
-    setGameOverDialogOpen(false);
-  }, [gridSize, setGeneration, updateStats]);
-  
-  // Restart with empty grid
-  const restartWithEmptyGrid = useCallback(() => {
-    const emptyGrid = createEmptyGrid(gridSize);
-    setGrid(emptyGrid);
-    gridRef.current = emptyGrid;
-    generationRef.current = 0;
-    setGeneration(0);
-    setStableGenerations(0);
-    updateStats();
-    setGameOverDialogOpen(false);
-  }, [gridSize, setGeneration, updateStats]);
+  // These functions are no longer needed with the simplified dialog approach
+  // Users will use the existing controls in the UI to restart or randomize
 
   // Game loop
   const gameLoop = useCallback((timestamp: number) => {
@@ -315,27 +294,13 @@ export default function GameGrid({
               {gameOverMessage}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex flex-col sm:flex-row sm:justify-center gap-2 mt-4">
+          <DialogFooter className="flex justify-center mt-4">
             <Button 
-              variant="outline" 
+              variant="default" 
               onClick={() => setGameOverDialogOpen(false)}
-              className="w-full sm:w-auto"
+              className="w-32"
             >
-              Cancel
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={restartWithEmptyGrid}
-              className="w-full sm:w-auto"
-            >
-              Restart with Empty Grid
-            </Button>
-            <Button 
-              variant="default"
-              onClick={restartWithRandomGrid}
-              className="w-full sm:w-auto"
-            >
-              Restart with Random Grid
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
