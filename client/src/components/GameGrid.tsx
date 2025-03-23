@@ -282,7 +282,7 @@ export default function GameGrid({
               key={`${rowIndex}-${colIndex}`}
               className="cell border border-grid"
               style={{ 
-                backgroundColor: cell ? '#10B981' : '#F3F4F6',
+                backgroundColor: cell.alive ? cell.color : '#F3F4F6',
                 transition: 'background-color 0.2s ease'
               }}
               onClick={() => toggleCell(rowIndex, colIndex)}
