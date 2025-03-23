@@ -20,7 +20,7 @@ interface HighScore {
   date: Date | string;
 }
 
-// Interface for all-time best scores
+// Interface for all-time best scores from server
 interface AllTimeBestScores {
   maxGenerations: HighScore | null;
   maxPopulation: HighScore | null;

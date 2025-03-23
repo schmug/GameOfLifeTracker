@@ -61,6 +61,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get the all time best high scores (must be defined before the dynamic :sessionId route)
+  app.get("/api/high-scores/best/all-time", async (_req, res) => {
+    try {
+      const bestScores = await storage.getAllTimeBestScores();
+      res.json(bestScores);
+    } catch (error) {
+      console.error("Error fetching best scores:", error);
+      res.status(500).json({ message: "Failed to fetch best scores" });
+    }
+  });
+
   // Get a high score by session ID
   app.get("/api/high-scores/:sessionId", async (req, res) => {
     try {
@@ -75,17 +86,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching high score:", error);
       res.status(500).json({ message: "Failed to fetch high score" });
-    }
-  });
-
-  // Get the all time best high scores
-  app.get("/api/high-scores/best/all-time", async (_req, res) => {
-    try {
-      const bestScores = await storage.getAllTimeBestScores();
-      res.json(bestScores);
-    } catch (error) {
-      console.error("Error fetching best scores:", error);
-      res.status(500).json({ message: "Failed to fetch best scores" });
     }
   });
 

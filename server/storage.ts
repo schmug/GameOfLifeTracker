@@ -77,7 +77,11 @@ export class MemStorage implements IStorage {
     return updatedHighScore;
   }
   
-  async getAllTimeBestScores(): Promise<any> {
+  async getAllTimeBestScores(): Promise<{
+    maxGenerations: HighScore | null,
+    maxPopulation: HighScore | null,
+    longestPattern: HighScore | null
+  }> {
     const scores = Array.from(this.highScores.values());
     
     if (scores.length === 0) {
@@ -88,25 +92,33 @@ export class MemStorage implements IStorage {
       };
     }
     
+    // Filter out scores with zero values
+    const nonZeroGenScores = scores.filter(score => score.maxGenerations > 0);
+    const nonZeroPopScores = scores.filter(score => score.maxPopulation > 0);
+    const nonZeroPatternScores = scores.filter(score => score.longestPattern > 0);
+    
     // Find highest max generations
-    const maxGenScore = scores.reduce((prev, current) => 
-      (prev.maxGenerations > current.maxGenerations) ? prev : current
-    );
+    const maxGenScore = nonZeroGenScores.length > 0 
+      ? nonZeroGenScores.reduce((prev, current) => 
+          (prev.maxGenerations > current.maxGenerations) ? prev : current)
+      : null;
     
     // Find highest max population
-    const maxPopScore = scores.reduce((prev, current) => 
-      (prev.maxPopulation > current.maxPopulation) ? prev : current
-    );
+    const maxPopScore = nonZeroPopScores.length > 0
+      ? nonZeroPopScores.reduce((prev, current) => 
+          (prev.maxPopulation > current.maxPopulation) ? prev : current)
+      : null;
     
     // Find longest pattern
-    const longestPatternScore = scores.reduce((prev, current) => 
-      (prev.longestPattern > current.longestPattern) ? prev : current
-    );
+    const longestPatternScore = nonZeroPatternScores.length > 0
+      ? nonZeroPatternScores.reduce((prev, current) => 
+          (prev.longestPattern > current.longestPattern) ? prev : current)
+      : null;
     
     return {
-      maxGenerations: maxGenScore.maxGenerations > 0 ? maxGenScore : null,
-      maxPopulation: maxPopScore.maxPopulation > 0 ? maxPopScore : null,
-      longestPattern: longestPatternScore.longestPattern > 0 ? longestPatternScore : null
+      maxGenerations: maxGenScore,
+      maxPopulation: maxPopScore,
+      longestPattern: longestPatternScore
     };
   }
 }
