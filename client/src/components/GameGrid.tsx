@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { calculateNextGeneration, createEmptyGrid, createRandomGrid } from "@/lib/gameOfLife";
+import { calculateNextGeneration, createEmptyGrid, createRandomGrid, getRandomColor, Cell } from "@/lib/gameOfLife";
 import {
   Dialog,
   DialogContent,
@@ -34,7 +34,7 @@ export default function GameGrid({
   setLongestPattern,
 }: GameGridProps) {
   // State and refs
-  const [grid, setGrid] = useState<boolean[][]>(() => createEmptyGrid(gridSize));
+  const [grid, setGrid] = useState<Cell[][]>(() => createEmptyGrid(gridSize));
   const [stableGenerations, setStableGenerations] = useState(0);
   const [previousLivingCells, setPreviousLivingCells] = useState(0);
   const generationRef = useRef(0);
@@ -63,7 +63,7 @@ export default function GameGrid({
     
     for (let i = 0; i < gridRef.current.length; i++) {
       for (let j = 0; j < gridRef.current[i].length; j++) {
-        if (gridRef.current[i][j]) {
+        if (gridRef.current[i][j].alive) {
           livingCount++;
         }
       }
@@ -147,7 +147,7 @@ export default function GameGrid({
       let hasLivingCells = false;
       for (let i = 0; i < nextGrid.length; i++) {
         for (let j = 0; j < nextGrid[i].length; j++) {
-          if (nextGrid[i][j]) {
+          if (nextGrid[i][j].alive) {
             hasLivingCells = true;
             break;
           }
@@ -206,7 +206,13 @@ export default function GameGrid({
     
     const newGrid = [...grid];
     newGrid[rowIndex] = [...newGrid[rowIndex]];
-    newGrid[rowIndex][colIndex] = !newGrid[rowIndex][colIndex];
+    const cell = newGrid[rowIndex][colIndex];
+    
+    // Toggle alive state and assign a new random color if it's becoming alive
+    newGrid[rowIndex][colIndex] = {
+      alive: !cell.alive,
+      color: cell.alive ? cell.color : getRandomColor()
+    };
     
     setGrid(newGrid);
     updateStats();
