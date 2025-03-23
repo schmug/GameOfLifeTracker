@@ -36,7 +36,11 @@ export const insertHighScoreSchema = createInsertSchema(highScores).pick({
 });
 
 export type InsertHighScore = z.infer<typeof insertHighScoreSchema>;
-export type HighScore = typeof highScores.$inferSelect;
+
+// Define HighScore with date as string to match what we're storing
+export type HighScore = Omit<typeof highScores.$inferSelect, 'date'> & {
+  date: string;
+};
 
 export const updateHighScoreSchema = insertHighScoreSchema.partial();
 

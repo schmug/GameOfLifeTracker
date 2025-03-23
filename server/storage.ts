@@ -60,13 +60,17 @@ export class MemStorage implements IStorage {
   async createHighScore(highScore: InsertHighScore & { date: Date }): Promise<HighScore> {
     const id = this.highScoreCurrentId++;
     
+    // Create a copy of the highScore object without the Date object
+    const { date, ...restHighScore } = highScore;
+    
     // Ensure we have a date in ISO string format for consistent handling
-    const dateISOString = highScore.date instanceof Date 
-      ? highScore.date.toISOString()
+    const dateISOString = date instanceof Date 
+      ? date.toISOString()
       : new Date().toISOString();
       
+    // Create the new high score with the date as string
     const newHighScore: HighScore = { 
-      ...highScore, 
+      ...restHighScore, 
       id,
       date: dateISOString // Store as ISO string
     };
