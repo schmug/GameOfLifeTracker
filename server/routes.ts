@@ -22,13 +22,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/high-scores", async (req, res) => {
     try {
       // If date is provided in the request body, use it, otherwise use current date
-      let date = req.body.date ? new Date(req.body.date) : new Date();
+      let dateStr = req.body.date || new Date().toISOString();
+      let date = new Date(dateStr);
       
-      const validatedData = insertHighScoreSchema.parse({
-        ...req.body,
-        date
-      });
+      // Ensure we always have a valid date by using the current date as fallback
+      if (isNaN(date.getTime())) {
+        date = new Date();
+      }
       
+      // Create a new object with our validated data
+      const highScoreData = {
+        sessionId: req.body.sessionId,
+        maxGenerations: req.body.maxGenerations || 0,
+        maxPopulation: req.body.maxPopulation || 0,
+        longestPattern: req.body.longestPattern || 0,
+        gridSize: req.body.gridSize || 25,
+        date: date
+      };
+      
+      const validatedData = insertHighScoreSchema.parse(highScoreData);
       const newHighScore = await storage.createHighScore(validatedData);
       res.status(201).json(newHighScore);
     } catch (error) {

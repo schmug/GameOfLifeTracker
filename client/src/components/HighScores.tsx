@@ -42,6 +42,35 @@ export default function HighScores({
 }: HighScoresProps) {
   const sessionDate = format(new Date(), "yyyy-MM-dd 'at' HH:mm");
   
+  // Safe-render component that doesn't crash on null values
+  const safeRender = (conditionValue: any, render: () => React.ReactNode) => {
+    if (!conditionValue) return null;
+    try {
+      return render();
+    } catch (error) {
+      console.error("Error rendering:", error);
+      return null;
+    }
+  };
+  
+  // Helper function to safely format dates
+  const formatDate = (dateValue: Date | string | undefined | null) => {
+    try {
+      if (!dateValue) return "unknown date";
+      const dateStr = String(dateValue);
+      if (dateStr === "Invalid Date" || dateStr === "null") return "recently";
+      
+      // Use a fixed date if we can't parse the value
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return "recently";
+      
+      return formatDistanceToNow(date, { addSuffix: true });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "recently";
+    }
+  };
+  
   return (
     <div className="bg-white rounded-lg shadow-sm border border-grid p-4">
       <h2 className="text-lg font-semibold mb-3">High Scores</h2>
@@ -101,18 +130,18 @@ export default function HighScores({
               </div>
             </div>
             
-            {allTimeBestScores?.maxGenerations && (
+            {safeRender(allTimeBestScores?.maxGenerations, () => (
               <div className="mt-1 flex flex-wrap items-start gap-1">
-                {allTimeBestScores.maxGenerations.sessionId === sessionId && (
+                {allTimeBestScores?.maxGenerations?.sessionId === sessionId && (
                   <Badge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">You</Badge>
                 )}
                 <div className="text-xs text-gray-500 ml-auto">
-                  Grid: {allTimeBestScores.maxGenerations.gridSize}×{allTimeBestScores.maxGenerations.gridSize} • 
+                  Grid: {allTimeBestScores?.maxGenerations?.gridSize}×{allTimeBestScores?.maxGenerations?.gridSize} • 
                   {' '}
-                  {formatDistanceToNow(new Date(allTimeBestScores.maxGenerations.date), { addSuffix: true })}
+                  {formatDate(allTimeBestScores?.maxGenerations?.date)}
                 </div>
               </div>
-            )}
+            ))}
           </div>
           
           {/* Population record */}
@@ -124,18 +153,18 @@ export default function HighScores({
               </div>
             </div>
             
-            {allTimeBestScores?.maxPopulation && (
+            {safeRender(allTimeBestScores?.maxPopulation, () => (
               <div className="mt-1 flex flex-wrap items-start gap-1">
-                {allTimeBestScores.maxPopulation.sessionId === sessionId && (
+                {allTimeBestScores?.maxPopulation?.sessionId === sessionId && (
                   <Badge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">You</Badge>
                 )}
                 <div className="text-xs text-gray-500 ml-auto">
-                  Grid: {allTimeBestScores.maxPopulation.gridSize}×{allTimeBestScores.maxPopulation.gridSize} • 
+                  Grid: {allTimeBestScores?.maxPopulation?.gridSize}×{allTimeBestScores?.maxPopulation?.gridSize} • 
                   {' '}
-                  {formatDistanceToNow(new Date(allTimeBestScores.maxPopulation.date), { addSuffix: true })}
+                  {formatDate(allTimeBestScores?.maxPopulation?.date)}
                 </div>
               </div>
-            )}
+            ))}
           </div>
           
           {/* Pattern longevity record */}
@@ -147,18 +176,18 @@ export default function HighScores({
               </div>
             </div>
             
-            {allTimeBestScores?.longestPattern && (
+            {safeRender(allTimeBestScores?.longestPattern, () => (
               <div className="mt-1 flex flex-wrap items-start gap-1">
-                {allTimeBestScores.longestPattern.sessionId === sessionId && (
+                {allTimeBestScores?.longestPattern?.sessionId === sessionId && (
                   <Badge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">You</Badge>
                 )}
                 <div className="text-xs text-gray-500 ml-auto">
-                  Grid: {allTimeBestScores.longestPattern.gridSize}×{allTimeBestScores.longestPattern.gridSize} • 
+                  Grid: {allTimeBestScores?.longestPattern?.gridSize}×{allTimeBestScores?.longestPattern?.gridSize} • 
                   {' '}
-                  {formatDistanceToNow(new Date(allTimeBestScores.longestPattern.date), { addSuffix: true })}
+                  {formatDate(allTimeBestScores?.longestPattern?.date)}
                 </div>
               </div>
-            )}
+            ))}
           </div>
         </div>
       )}
