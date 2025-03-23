@@ -177,6 +177,7 @@ export default function Home() {
               currentLongest={longestPattern}
               allTimeBestScores={allTimeBestScores}
               isLoading={isLoadingBestScores || isLoadingSessionScore}
+              sessionId={sessionId}
             />
           </div>
         </div>

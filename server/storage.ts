@@ -82,12 +82,9 @@ export class MemStorage implements IStorage {
     
     if (scores.length === 0) {
       return {
-        maxGenerations: 0,
-        maxPopulation: 0,
-        longestPattern: 0,
-        generationsDate: 'N/A',
-        populationDate: 'N/A',
-        longevityDate: 'N/A',
+        maxGenerations: null,
+        maxPopulation: null,
+        longestPattern: null
       };
     }
     
@@ -106,22 +103,10 @@ export class MemStorage implements IStorage {
       (prev.longestPattern > current.longestPattern) ? prev : current
     );
     
-    // Format dates for readability
-    const formatDate = (date: Date) => {
-      return new Date(date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    };
-    
     return {
-      maxGenerations: maxGenScore.maxGenerations,
-      maxPopulation: maxPopScore.maxPopulation,
-      longestPattern: longestPatternScore.longestPattern,
-      generationsDate: formatDate(maxGenScore.date),
-      populationDate: formatDate(maxPopScore.date),
-      longevityDate: formatDate(longestPatternScore.date),
+      maxGenerations: maxGenScore.maxGenerations > 0 ? maxGenScore : null,
+      maxPopulation: maxPopScore.maxPopulation > 0 ? maxPopScore : null,
+      longestPattern: longestPatternScore.longestPattern > 0 ? longestPatternScore : null
     };
   }
 }

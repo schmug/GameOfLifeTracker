@@ -1,14 +1,34 @@
 import React from "react";
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+
+// Define high score interface
+interface HighScore {
+  id?: number;
+  sessionId: string;
+  maxGenerations: number;
+  maxPopulation: number;
+  longestPattern: number;
+  gridSize: number;
+  date: Date | string;
+}
+
+// Interface for all-time best scores
+interface AllTimeBestScores {
+  maxGenerations: HighScore | null;
+  maxPopulation: HighScore | null;
+  longestPattern: HighScore | null;
+}
 
 interface HighScoresProps {
   currentSessionActive: boolean;
   currentMaxGen: number;
   currentMaxPop: number;
   currentLongest: number;
-  allTimeBestScores?: any;
+  allTimeBestScores?: AllTimeBestScores;
   isLoading: boolean;
+  sessionId: string;
 }
 
 export default function HighScores({
@@ -18,6 +38,7 @@ export default function HighScores({
   currentLongest,
   allTimeBestScores,
   isLoading,
+  sessionId,
 }: HighScoresProps) {
   const sessionDate = format(new Date(), "yyyy-MM-dd 'at' HH:mm");
   
@@ -71,40 +92,73 @@ export default function HighScores({
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-grid">
-            <div>
-              <div className="font-medium">Generations</div>
-              <div className="text-xs text-gray-500">
-                {allTimeBestScores?.generationsDate || "N/A"}
+          {/* Generations record */}
+          <div className="pb-2 border-b border-grid">
+            <div className="flex items-center justify-between">
+              <div className="font-medium">Max Generations</div>
+              <div className="text-lg font-semibold">
+                {allTimeBestScores?.maxGenerations?.maxGenerations || 0}
               </div>
             </div>
-            <div className="text-lg font-semibold">
-              {allTimeBestScores?.maxGenerations || 0}
-            </div>
+            
+            {allTimeBestScores?.maxGenerations && (
+              <div className="mt-1 flex flex-wrap items-start gap-1">
+                {allTimeBestScores.maxGenerations.sessionId === sessionId && (
+                  <Badge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">You</Badge>
+                )}
+                <div className="text-xs text-gray-500 ml-auto">
+                  Grid: {allTimeBestScores.maxGenerations.gridSize}×{allTimeBestScores.maxGenerations.gridSize} • 
+                  {' '}
+                  {formatDistanceToNow(new Date(allTimeBestScores.maxGenerations.date), { addSuffix: true })}
+                </div>
+              </div>
+            )}
           </div>
           
-          <div className="flex items-center justify-between pb-2 border-b border-grid">
-            <div>
-              <div className="font-medium">Population</div>
-              <div className="text-xs text-gray-500">
-                {allTimeBestScores?.populationDate || "N/A"}
+          {/* Population record */}
+          <div className="pb-2 border-b border-grid">
+            <div className="flex items-center justify-between">
+              <div className="font-medium">Max Population</div>
+              <div className="text-lg font-semibold">
+                {allTimeBestScores?.maxPopulation?.maxPopulation || 0}
               </div>
             </div>
-            <div className="text-lg font-semibold">
-              {allTimeBestScores?.maxPopulation || 0}
-            </div>
+            
+            {allTimeBestScores?.maxPopulation && (
+              <div className="mt-1 flex flex-wrap items-start gap-1">
+                {allTimeBestScores.maxPopulation.sessionId === sessionId && (
+                  <Badge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">You</Badge>
+                )}
+                <div className="text-xs text-gray-500 ml-auto">
+                  Grid: {allTimeBestScores.maxPopulation.gridSize}×{allTimeBestScores.maxPopulation.gridSize} • 
+                  {' '}
+                  {formatDistanceToNow(new Date(allTimeBestScores.maxPopulation.date), { addSuffix: true })}
+                </div>
+              </div>
+            )}
           </div>
           
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="font-medium">Pattern Longevity</div>
-              <div className="text-xs text-gray-500">
-                {allTimeBestScores?.longevityDate || "N/A"}
+          {/* Pattern longevity record */}
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="font-medium">Longest Pattern</div>
+              <div className="text-lg font-semibold">
+                {allTimeBestScores?.longestPattern?.longestPattern || 0} gens
               </div>
             </div>
-            <div className="text-lg font-semibold">
-              {allTimeBestScores?.longestPattern || 0} gens
-            </div>
+            
+            {allTimeBestScores?.longestPattern && (
+              <div className="mt-1 flex flex-wrap items-start gap-1">
+                {allTimeBestScores.longestPattern.sessionId === sessionId && (
+                  <Badge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">You</Badge>
+                )}
+                <div className="text-xs text-gray-500 ml-auto">
+                  Grid: {allTimeBestScores.longestPattern.gridSize}×{allTimeBestScores.longestPattern.gridSize} • 
+                  {' '}
+                  {formatDistanceToNow(new Date(allTimeBestScores.longestPattern.date), { addSuffix: true })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
