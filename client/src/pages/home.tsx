@@ -78,7 +78,9 @@ export default function Home() {
       return res.json();
     },
     onSuccess: () => {
+      // Invalidate both the session score and the all-time best scores
       queryClient.invalidateQueries({ queryKey: [`/api/high-scores/${sessionId}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/high-scores/best/all-time'] });
     },
     onError: (error) => {
       toast({

@@ -21,9 +21,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new high score
   app.post("/api/high-scores", async (req, res) => {
     try {
+      // If date is provided in the request body, use it, otherwise use current date
+      let date = req.body.date ? new Date(req.body.date) : new Date();
+      
       const validatedData = insertHighScoreSchema.parse({
         ...req.body,
-        date: new Date(),
+        date
       });
       
       const newHighScore = await storage.createHighScore(validatedData);
