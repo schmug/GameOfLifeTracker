@@ -5,12 +5,24 @@ import GameControls from "@/components/GameControls";
 import GameStats from "@/components/GameStats";
 import HighScores from "@/components/HighScores";
 import RuleExplanation from "@/components/RuleExplanation";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
+// Define high score interface to match the schema on the server
+interface HighScore {
+  id?: number;
+  sessionId: string;
+  maxGenerations: number;
+  maxPopulation: number;
+  longestPattern: number;
+  gridSize: number;
+  date: Date;
+}
+
 export default function Home() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [sessionId] = useState(() => nanoid());
   const [gridSize, setGridSize] = useState(25);
   const [gameRunning, setGameRunning] = useState(false);
@@ -126,6 +138,7 @@ export default function Home() {
               gridSize={gridSize}
               setGridSize={setGridSize}
               gameRunning={gameRunning}
+              setGameRunning={setGameRunning}
               speed={speed}
               setGeneration={setGeneration}
               setLivingCells={setLivingCells}

@@ -1,4 +1,4 @@
-import { users, type User, type InsertUser } from "@shared/schema";
+import { users, type User, type InsertUser, type HighScore, type InsertHighScore, type UpdateHighScore } from "@shared/schema";
 
 // modify the interface with any CRUD methods
 // you might need
@@ -7,15 +7,26 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  
+  // High Score methods
+  getAllHighScores(): Promise<HighScore[]>;
+  getHighScoreBySessionId(sessionId: string): Promise<HighScore | undefined>;
+  createHighScore(highScore: InsertHighScore & { date: Date }): Promise<HighScore>;
+  updateHighScoreBySessionId(sessionId: string, data: UpdateHighScore): Promise<HighScore | undefined>;
+  getAllTimeBestScores(): Promise<any>; // Returns formatted best scores
 }
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
-  currentId: number;
+  private highScores: Map<number, HighScore>;
+  userCurrentId: number;
+  highScoreCurrentId: number;
 
   constructor() {
     this.users = new Map();
-    this.currentId = 1;
+    this.highScores = new Map();
+    this.userCurrentId = 1;
+    this.highScoreCurrentId = 1;
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -29,10 +40,89 @@ export class MemStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
+    const id = this.userCurrentId++;
     const user: User = { ...insertUser, id };
     this.users.set(id, user);
     return user;
+  }
+  
+  // High Score methods implementation
+  async getAllHighScores(): Promise<HighScore[]> {
+    return Array.from(this.highScores.values());
+  }
+  
+  async getHighScoreBySessionId(sessionId: string): Promise<HighScore | undefined> {
+    return Array.from(this.highScores.values()).find(
+      (score) => score.sessionId === sessionId
+    );
+  }
+  
+  async createHighScore(highScore: InsertHighScore & { date: Date }): Promise<HighScore> {
+    const id = this.highScoreCurrentId++;
+    const newHighScore: HighScore = { ...highScore, id };
+    this.highScores.set(id, newHighScore);
+    return newHighScore;
+  }
+  
+  async updateHighScoreBySessionId(sessionId: string, data: UpdateHighScore): Promise<HighScore | undefined> {
+    const existingHighScore = await this.getHighScoreBySessionId(sessionId);
+    
+    if (!existingHighScore) {
+      return undefined;
+    }
+    
+    const updatedHighScore = { ...existingHighScore, ...data };
+    this.highScores.set(existingHighScore.id, updatedHighScore);
+    
+    return updatedHighScore;
+  }
+  
+  async getAllTimeBestScores(): Promise<any> {
+    const scores = Array.from(this.highScores.values());
+    
+    if (scores.length === 0) {
+      return {
+        maxGenerations: 0,
+        maxPopulation: 0,
+        longestPattern: 0,
+        generationsDate: 'N/A',
+        populationDate: 'N/A',
+        longevityDate: 'N/A',
+      };
+    }
+    
+    // Find highest max generations
+    const maxGenScore = scores.reduce((prev, current) => 
+      (prev.maxGenerations > current.maxGenerations) ? prev : current
+    );
+    
+    // Find highest max population
+    const maxPopScore = scores.reduce((prev, current) => 
+      (prev.maxPopulation > current.maxPopulation) ? prev : current
+    );
+    
+    // Find longest pattern
+    const longestPatternScore = scores.reduce((prev, current) => 
+      (prev.longestPattern > current.longestPattern) ? prev : current
+    );
+    
+    // Format dates for readability
+    const formatDate = (date: Date) => {
+      return new Date(date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    };
+    
+    return {
+      maxGenerations: maxGenScore.maxGenerations,
+      maxPopulation: maxPopScore.maxPopulation,
+      longestPattern: longestPatternScore.longestPattern,
+      generationsDate: formatDate(maxGenScore.date),
+      populationDate: formatDate(maxPopScore.date),
+      longevityDate: formatDate(longestPatternScore.date),
+    };
   }
 }
 

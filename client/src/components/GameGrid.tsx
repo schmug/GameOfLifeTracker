@@ -5,6 +5,7 @@ interface GameGridProps {
   gridSize: number;
   setGridSize: (size: number) => void;
   gameRunning: boolean;
+  setGameRunning: (running: boolean) => void;
   speed: number;
   setGeneration: (gen: number) => void;
   setLivingCells: (count: number) => void;
@@ -16,12 +17,14 @@ export default function GameGrid({
   gridSize,
   setGridSize,
   gameRunning,
+  setGameRunning,
   speed,
   setGeneration,
   setLivingCells,
   setDensity,
   setLongestPattern,
 }: GameGridProps) {
+  // State and refs
   const [grid, setGrid] = useState<boolean[][]>(() => createEmptyGrid(gridSize));
   const [stableGenerations, setStableGenerations] = useState(0);
   const [previousLivingCells, setPreviousLivingCells] = useState(0);
@@ -29,6 +32,11 @@ export default function GameGrid({
   const gridRef = useRef(grid);
   const animationFrameRef = useRef<number | null>(null);
   const lastUpdateTimeRef = useRef(0);
+  
+  // Update grid reference when grid changes
+  useEffect(() => {
+    gridRef.current = grid;
+  }, [grid]);
   
   // Reset everything when grid size changes
   useEffect(() => {
@@ -39,13 +47,8 @@ export default function GameGrid({
     setStableGenerations(0);
     setPreviousLivingCells(0);
   }, [gridSize, setGeneration]);
-
-  // Update grid reference when grid changes
-  useEffect(() => {
-    gridRef.current = grid;
-  }, [grid]);
-
-  // Count living cells and update stats
+  
+  // Function to update statistics based on the current grid
   const updateStats = useCallback(() => {
     let livingCount = 0;
     
@@ -74,7 +77,55 @@ export default function GameGrid({
     }
     
     setPreviousLivingCells(livingCount);
-  }, [gridSize, setLivingCells, setDensity, previousLivingCells, stableGenerations, setLongestPattern]);
+  }, [gridSize, previousLivingCells, stableGenerations, setDensity, setLivingCells, setLongestPattern]);
+  
+  // Randomize the grid
+  const randomizeGrid = useCallback(() => {
+    const randomGrid = createRandomGrid(gridSize);
+    setGrid(randomGrid);
+    gridRef.current = randomGrid;
+    generationRef.current = 0;
+    setGeneration(0);
+    setStableGenerations(0);
+    updateStats();
+  }, [gridSize, setGeneration, updateStats]);
+  
+  // Clear the grid
+  const clearGrid = useCallback(() => {
+    const emptyGrid = createEmptyGrid(gridSize);
+    setGrid(emptyGrid);
+    gridRef.current = emptyGrid;
+    generationRef.current = 0;
+    setGeneration(0);
+    setStableGenerations(0);
+    updateStats();
+  }, [gridSize, setGeneration, updateStats]);
+  
+  // Step forward one generation
+  const stepForward = useCallback(() => {
+    const nextGrid = calculateNextGeneration(grid);
+    setGrid(nextGrid);
+    generationRef.current++;
+    setGeneration(generationRef.current);
+    updateStats();
+  }, [grid, setGeneration, updateStats]);
+  
+  // Function for game over actions
+  const handleGameOver = useCallback((message: string) => {
+    if (window.confirm(message)) {
+      // Create a random grid
+      const randomGrid = createRandomGrid(gridSize);
+      setGrid(randomGrid);
+      gridRef.current = randomGrid;
+      generationRef.current = 0;
+      setGeneration(0);
+      setStableGenerations(0);
+      updateStats();
+    } else {
+      // User chose not to restart
+      setGameRunning(false);
+    }
+  }, [gridSize, setGeneration, setStableGenerations, updateStats, setGameRunning]);
 
   // Game loop
   const gameLoop = useCallback((timestamp: number) => {
@@ -83,6 +134,34 @@ export default function GameGrid({
     
     if (elapsed > interval) {
       const nextGrid = calculateNextGeneration(gridRef.current);
+      
+      // Check for end conditions
+      
+      // End condition 1: No living cells
+      let hasLivingCells = false;
+      for (let i = 0; i < nextGrid.length; i++) {
+        for (let j = 0; j < nextGrid[i].length; j++) {
+          if (nextGrid[i][j]) {
+            hasLivingCells = true;
+            break;
+          }
+        }
+        if (hasLivingCells) break;
+      }
+      
+      if (!hasLivingCells) {
+        // Game is over - no more living cells
+        handleGameOver('Game over! All cells have died. Would you like to restart?');
+        return;
+      }
+      
+      // End condition 2: Pattern has stabilized (handled via stableGenerations)
+      if (stableGenerations > 10) {
+        handleGameOver('Game over! Pattern has stabilized for 10 generations. Would you like to restart?');
+        return;
+      }
+      
+      // Continue the game
       setGrid(nextGrid);
       gridRef.current = nextGrid;
       
@@ -96,8 +175,8 @@ export default function GameGrid({
     if (gameRunning) {
       animationFrameRef.current = requestAnimationFrame(gameLoop);
     }
-  }, [gameRunning, speed, setGeneration, updateStats]);
-
+  }, [gameRunning, setGameRunning, speed, stableGenerations, updateStats, setGeneration, handleGameOver]);
+  
   // Start/stop game loop based on gameRunning state
   useEffect(() => {
     if (gameRunning) {
@@ -114,9 +193,9 @@ export default function GameGrid({
       }
     };
   }, [gameRunning, gameLoop]);
-
+  
   // Toggle cell state on click
-  const toggleCell = (rowIndex: number, colIndex: number) => {
+  const toggleCell = useCallback((rowIndex: number, colIndex: number) => {
     if (gameRunning) return;
     
     const newGrid = [...grid];
@@ -125,55 +204,24 @@ export default function GameGrid({
     
     setGrid(newGrid);
     updateStats();
-  };
-
-  // Step forward one generation
-  const stepForward = () => {
-    const nextGrid = calculateNextGeneration(grid);
-    setGrid(nextGrid);
-    generationRef.current++;
-    setGeneration(generationRef.current);
-    updateStats();
-  };
-
-  // Clear the grid
-  const clearGrid = () => {
-    const emptyGrid = createEmptyGrid(gridSize);
-    setGrid(emptyGrid);
-    gridRef.current = emptyGrid;
-    generationRef.current = 0;
-    setGeneration(0);
-    setStableGenerations(0);
-    updateStats();
-  };
-
-  // Randomize the grid
-  const randomizeGrid = () => {
-    const randomGrid = createRandomGrid(gridSize);
-    setGrid(randomGrid);
-    gridRef.current = randomGrid;
-    generationRef.current = 0;
-    setGeneration(0);
-    setStableGenerations(0);
-    updateStats();
-  };
-
+  }, [gameRunning, grid, updateStats]);
+  
   // Increase grid size
-  const increaseGridSize = () => {
+  const increaseGridSize = useCallback(() => {
     const newSize = Math.min(gridSize + 5, 50);
     if (newSize !== gridSize) {
       setGridSize(newSize);
     }
-  };
-
+  }, [gridSize, setGridSize]);
+  
   // Decrease grid size
-  const decreaseGridSize = () => {
+  const decreaseGridSize = useCallback(() => {
     const newSize = Math.max(gridSize - 5, 10);
     if (newSize !== gridSize) {
       setGridSize(newSize);
     }
-  };
-
+  }, [gridSize, setGridSize]);
+  
   // Expose these methods to parent via refs
   useEffect(() => {
     // Make these methods available to the parent component
@@ -186,8 +234,8 @@ export default function GameGrid({
     return () => {
       delete (window as any).gameGridAPI;
     };
-  }, [grid, gridSize]);
-
+  }, [clearGrid, randomizeGrid, stepForward]);
+  
   return (
     <div className="relative border border-grid rounded-lg shadow-sm bg-white overflow-hidden">
       {/* Grid size controls */}
