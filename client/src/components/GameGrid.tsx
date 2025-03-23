@@ -75,14 +75,14 @@ export default function GameGrid({
     
     // Update stable pattern detection
     if (livingCount === previousLivingCells && livingCount > 0) {
-      setStableGenerations(prev => prev + 1);
+      const newStableGenerations = stableGenerations + 1;
+      setStableGenerations(newStableGenerations);
+      
+      // Only update the longest pattern when the current stable pattern length increases
+      // and exceeds the previous longest pattern
+      setLongestPattern(prevLongest => Math.max(prevLongest, newStableGenerations));
     } else if (livingCount !== previousLivingCells) {
       setStableGenerations(0);
-    }
-    
-    // Update longest pattern
-    if (stableGenerations > 0) {
-      setLongestPattern(stableGenerations);
     }
     
     setPreviousLivingCells(livingCount);
