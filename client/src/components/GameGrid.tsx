@@ -305,6 +305,41 @@ export default function GameGrid({
           ))
         )}
       </div>
+      
+      {/* Game Over Dialog */}
+      <Dialog open={gameOverDialogOpen} onOpenChange={setGameOverDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Game Over</DialogTitle>
+            <DialogDescription>
+              {gameOverMessage}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-col sm:flex-row sm:justify-center gap-2 mt-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setGameOverDialogOpen(false)}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={restartWithEmptyGrid}
+              className="w-full sm:w-auto"
+            >
+              Restart with Empty Grid
+            </Button>
+            <Button 
+              variant="default"
+              onClick={restartWithRandomGrid}
+              className="w-full sm:w-auto"
+            >
+              Restart with Random Grid
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
