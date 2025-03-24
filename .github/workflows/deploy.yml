@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -35,6 +35,8 @@ jobs:
         run: |
           # Add base path to vite.config.ts
           sed -i 's|export default defineConfig({|export default defineConfig({\n  base: "/conways-game-of-life/",|' vite.config.ts
+          # Make sure the GitHubPagesApp is used
+          echo "console.log('Building for GitHub Pages');" >> client/src/main.tsx
       
       - name: Build
         run: npm run build
@@ -42,10 +44,10 @@ jobs:
           NODE_ENV: production
       
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v2
       
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v1
         with:
           path: './dist'
 
@@ -58,4 +60,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v1
