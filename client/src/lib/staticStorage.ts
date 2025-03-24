@@ -1,10 +1,9 @@
 import { nanoid } from 'nanoid';
 import { HighScore } from '@shared/schema';
 
-// localStorage keys
-const SESSION_ID_KEY = 'game_of_life_session_id';
-const HIGH_SCORES_KEY = 'game_of_life_high_scores';
-const BEST_SCORES_KEY = 'game_of_life_best_scores';
+// Local storage keys
+const SESSION_ID_KEY = 'conway_session_id';
+const HIGH_SCORES_KEY = 'conway_high_scores';
 
 // Get or create a session ID
 export function getSessionId(): string {
@@ -16,78 +15,76 @@ export function getSessionId(): string {
   return sessionId;
 }
 
-// Initialize high scores in localStorage if they don't exist
+// Initialize high scores array in localStorage if it doesn't exist
 function initializeHighScores() {
   if (!localStorage.getItem(HIGH_SCORES_KEY)) {
     localStorage.setItem(HIGH_SCORES_KEY, JSON.stringify([]));
   }
-  if (!localStorage.getItem(BEST_SCORES_KEY)) {
-    localStorage.setItem(BEST_SCORES_KEY, JSON.stringify({
-      maxGenerations: null,
-      maxPopulation: null,
-      longestPattern: null
-    }));
-  }
+  return JSON.parse(localStorage.getItem(HIGH_SCORES_KEY) || '[]');
 }
 
-// Save high score
+// Save a new high score
 export async function saveHighScore(highScore: Omit<HighScore, 'id'>): Promise<HighScore> {
-  initializeHighScores();
+  const scores = initializeHighScores();
   const sessionId = getSessionId();
   
-  // Try to get existing high score for this session
-  const scores = JSON.parse(localStorage.getItem(HIGH_SCORES_KEY) || '[]');
+  // Check if a score for this session already exists
   const existingScoreIndex = scores.findIndex((s: HighScore) => s.sessionId === sessionId);
   
-  // Prepare the score object
+  // Create a new score with an ID
   const scoreWithId: HighScore = {
     ...highScore,
-    id: existingScoreIndex >= 0 ? scores[existingScoreIndex].id : Date.now(),
-    sessionId
+    id: existingScoreIndex >= 0 ? scores[existingScoreIndex].id : scores.length + 1,
+    date: new Date().toISOString()
   };
   
-  // Update or add the score
   if (existingScoreIndex >= 0) {
+    // Update existing score
     scores[existingScoreIndex] = scoreWithId;
   } else {
+    // Add new score
     scores.push(scoreWithId);
   }
   
+  // Save to localStorage
   localStorage.setItem(HIGH_SCORES_KEY, JSON.stringify(scores));
-  
-  // Update best scores
-  updateBestScores(scoreWithId);
   
   return scoreWithId;
 }
 
-// Get high score by session ID
+// Get a high score by session ID
 export async function getHighScoreBySessionId(sessionId: string): Promise<HighScore | undefined> {
-  initializeHighScores();
-  const scores = JSON.parse(localStorage.getItem(HIGH_SCORES_KEY) || '[]');
+  const scores = initializeHighScores();
   return scores.find((s: HighScore) => s.sessionId === sessionId);
 }
 
-// Update high score for session
+// Update an existing high score
 export async function updateHighScore(
   sessionId: string, 
-  updates: Partial<HighScore>
+  updates: Partial<Omit<HighScore, 'id' | 'sessionId' | 'date'>>
 ): Promise<HighScore | undefined> {
-  initializeHighScores();
-  const scores = JSON.parse(localStorage.getItem(HIGH_SCORES_KEY) || '[]');
+  const scores = initializeHighScores();
+  
+  // Find the score by session ID
   const scoreIndex = scores.findIndex((s: HighScore) => s.sessionId === sessionId);
   
-  if (scoreIndex === -1) return undefined;
+  if (scoreIndex === -1) {
+    return undefined;
+  }
   
+  // Update the score
   const updatedScore: HighScore = {
     ...scores[scoreIndex],
-    ...updates
+    ...updates,
+    date: new Date().toISOString()
   };
   
   scores[scoreIndex] = updatedScore;
+  
+  // Save to localStorage
   localStorage.setItem(HIGH_SCORES_KEY, JSON.stringify(scores));
   
-  // Update best scores
+  // Update all-time best scores
   updateBestScores(updatedScore);
   
   return updatedScore;
@@ -99,28 +96,56 @@ export async function getAllTimeBestScores(): Promise<{
   maxPopulation: HighScore | null;
   longestPattern: HighScore | null;
 }> {
-  initializeHighScores();
-  return JSON.parse(localStorage.getItem(BEST_SCORES_KEY) || '{}');
+  const scores = initializeHighScores();
+  
+  if (scores.length === 0) {
+    return {
+      maxGenerations: null,
+      maxPopulation: null,
+      longestPattern: null
+    };
+  }
+  
+  // Find the highest scores
+  let maxGenerations = scores[0];
+  let maxPopulation = scores[0];
+  let longestPattern = scores[0];
+  
+  for (const score of scores) {
+    if (score.maxGenerations > maxGenerations.maxGenerations) {
+      maxGenerations = score;
+    }
+    if (score.maxPopulation > maxPopulation.maxPopulation) {
+      maxPopulation = score;
+    }
+    if (score.longestPattern > longestPattern.longestPattern) {
+      longestPattern = score;
+    }
+  }
+  
+  return {
+    maxGenerations: maxGenerations.maxGenerations > 0 ? maxGenerations : null,
+    maxPopulation: maxPopulation.maxPopulation > 0 ? maxPopulation : null,
+    longestPattern: longestPattern.longestPattern > 0 ? longestPattern : null
+  };
 }
 
-// Update best scores if new score is better
+// Helper function to update the all-time best scores
 function updateBestScores(score: HighScore) {
-  const bestScores = JSON.parse(localStorage.getItem(BEST_SCORES_KEY) || '{}');
+  const scores = initializeHighScores();
+  let updated = false;
   
-  // Check max generations
-  if (!bestScores.maxGenerations || score.maxGenerations > bestScores.maxGenerations.maxGenerations) {
-    bestScores.maxGenerations = score;
+  // Find existing score
+  const existingIndex = scores.findIndex((s: HighScore) => s.id === score.id);
+  
+  if (existingIndex >= 0) {
+    scores[existingIndex] = score;
+    updated = true;
   }
   
-  // Check max population
-  if (!bestScores.maxPopulation || score.maxPopulation > bestScores.maxPopulation.maxPopulation) {
-    bestScores.maxPopulation = score;
+  if (!updated) {
+    scores.push(score);
   }
   
-  // Check longest pattern
-  if (!bestScores.longestPattern || score.longestPattern > bestScores.longestPattern.longestPattern) {
-    bestScores.longestPattern = score;
-  }
-  
-  localStorage.setItem(BEST_SCORES_KEY, JSON.stringify(bestScores));
+  localStorage.setItem(HIGH_SCORES_KEY, JSON.stringify(scores));
 }

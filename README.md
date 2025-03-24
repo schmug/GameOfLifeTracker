@@ -132,6 +132,31 @@ The Game of Life has many well-known patterns you can try creating:
 - **State Management**: TanStack Query
 - **Styling**: Tailwind CSS
 - **Data Storage**: In-memory storage
+- **CI/CD**: GitHub Actions
+
+## Deployment
+
+This project is set up to be automatically deployed to GitHub Pages whenever changes are pushed to the main branch.
+
+### GitHub Pages Deployment
+
+The application is deployed to GitHub Pages using GitHub Actions. The workflow is defined in `.github/workflows/deploy.yml` and includes:
+
+1. Checking out the code
+2. Setting up Node.js
+3. Installing dependencies
+4. Configuring the Vite build for GitHub Pages
+5. Building the application
+6. Deploying to GitHub Pages
+
+To view the deployed application, visit: https://yourusername.github.io/conways-game-of-life/
+
+### Local Development vs. Deployed Version
+
+- **Local Development**: When running locally, the application uses an Express backend for high score storage.
+- **GitHub Pages Deployment**: The deployed version uses localStorage for high score persistence since GitHub Pages only supports static files.
+
+The application automatically detects whether it's running locally or on GitHub Pages and adjusts its behavior accordingly.
 
 ## License
 
