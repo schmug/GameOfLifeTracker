@@ -1,8 +1,8 @@
 # Conway's Game of Life
 
-An interactive implementation of Conway's Game of Life with colorful cell visualization, high score tracking, and pattern detection.
+An interactive implementation of [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) with colorful cell visualization, high score tracking, and pattern detection.
 
-![Conway's Game of Life](https://github.com/yourusername/conways-game-of-life/raw/main/screenshot.png)
+![Conway's Game of Life](public/assets/game-screenshot.png)
 
 ## Features
 
