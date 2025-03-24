@@ -2,7 +2,7 @@
 
 An interactive implementation of [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) with colorful cell visualization, high score tracking, and pattern detection.
 
-![Conway's Game of Life](public/assets/screenshots/game-screenshot.png)
+![Conway's Game of Life](public/game-screenshot.png)
 
 ## What is Conway's Game of Life?
 
@@ -97,20 +97,28 @@ The Game of Life has many well-known patterns you can try creating:
 
 ### Still Lifes (Stable Patterns)
 - **Block**: A 2×2 square of cells
+
   ![Block Pattern](public/assets/patterns/block.svg)
+  
 - **Beehive**: A hexagonal arrangement of 6 cells
+
   ![Beehive Pattern](public/assets/patterns/beehive.svg)
+  
 - **Loaf**: A stable pattern resembling a loaf of bread
 
 ### Oscillators (Repeating Patterns)
 - **Blinker**: A row of 3 cells that alternates between horizontal and vertical
+
   ![Blinker Pattern](public/assets/patterns/blinker.svg)
+  
 - **Toad**: A pattern that oscillates between two states
 - **Pulsar**: A complex pattern with a period of 3
 
 ### Spaceships (Moving Patterns)
 - **Glider**: The simplest pattern that moves diagonally across the grid
+
   ![Glider Pattern](public/assets/patterns/glider.svg)
+  
 - **Lightweight Spaceship (LWSS)**: A small pattern that moves horizontally
 
 ### Guns and Infinite Growth
