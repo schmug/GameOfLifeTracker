@@ -2,7 +2,7 @@
 
 An interactive implementation of [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) with colorful cell visualization, high score tracking, and pattern detection.
 
-![Conway's Game of Life](public/game-screenshot.png)
+![Conway's Game of Life](public/assets/images/game-screenshot.png)
 
 ## What is Conway's Game of Life?
 
