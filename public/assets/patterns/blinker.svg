@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="225" height="100" viewBox="0 0 225 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background and grid for both states -->
+  <rect width="225" height="100" fill="#f8f9fa"/>
+  <rect width="225" height="100" fill="none" stroke="#d1d5db" stroke-width="2"/>
+  
+  <!-- Grid lines -->
+  <line x1="0" y1="25" x2="225" y2="25" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="0" y1="50" x2="225" y2="50" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="0" y1="75" x2="225" y2="75" stroke="#d1d5db" stroke-width="1"/>
+  
+  <line x1="25" y1="0" x2="25" y2="100" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="50" y1="0" x2="50" y2="100" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="75" y1="0" x2="75" y2="100" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="100" y1="0" x2="100" y2="100" stroke="#d1d5db" stroke-width="1"/>
+  
+  <line x1="125" y1="0" x2="125" y2="100" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="150" y1="0" x2="150" y2="100" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="175" y1="0" x2="175" y2="100" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="200" y1="0" x2="200" y2="100" stroke="#d1d5db" stroke-width="1"/>
+  
+  <!-- First state (horizontal) on the left -->
+  <rect x="25" y="50" width="25" height="25" fill="#10b981"/>
+  <rect x="50" y="50" width="25" height="25" fill="#10b981"/>
+  <rect x="75" y="50" width="25" height="25" fill="#10b981"/>
+  
+  <!-- Arrow indicating transformation -->
+  <line x1="112.5" y1="50" x2="137.5" y2="50" stroke="#6b7280" stroke-width="2"/>
+  <polygon points="137.5,50 132.5,45 132.5,55" fill="#6b7280"/>
+  
+  <!-- Second state (vertical) on the right -->
+  <rect x="162.5" y="25" width="25" height="25" fill="#10b981"/>
+  <rect x="162.5" y="50" width="25" height="25" fill="#10b981"/>
+  <rect x="162.5" y="75" width="25" height="25" fill="#10b981"/>
+  
+  <!-- Labels -->
+  <text x="50" y="15" font-family="Arial" font-size="12" fill="#6b7280">Generation 1</text>
+  <text x="162.5" y="15" font-family="Arial" font-size="12" fill="#6b7280">Generation 2</text>
+</svg>

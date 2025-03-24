@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="150" height="100" viewBox="0 0 150 100" xmlns="http://www.w3.org/2000/svg">
+  <rect width="150" height="100" fill="#f8f9fa"/>
+  <rect x="50" y="25" width="25" height="25" fill="#ec4899"/>
+  <rect x="75" y="25" width="25" height="25" fill="#ec4899"/>
+  <rect x="25" y="50" width="25" height="25" fill="#ec4899"/>
+  <rect x="100" y="50" width="25" height="25" fill="#ec4899"/>
+  <rect x="50" y="75" width="25" height="25" fill="#ec4899"/>
+  <rect x="75" y="75" width="25" height="25" fill="#ec4899"/>
+  <rect width="150" height="100" fill="none" stroke="#d1d5db" stroke-width="2"/>
+  <line x1="0" y1="25" x2="150" y2="25" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="0" y1="50" x2="150" y2="50" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="0" y1="75" x2="150" y2="75" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="25" y1="0" x2="25" y2="100" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="50" y1="0" x2="50" y2="100" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="75" y1="0" x2="75" y2="100" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="100" y1="0" x2="100" y2="100" stroke="#d1d5db" stroke-width="1"/>
+  <line x1="125" y1="0" x2="125" y2="100" stroke="#d1d5db" stroke-width="1"/>
+</svg>
