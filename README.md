@@ -142,3 +142,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - John Horton Conway for creating the Game of Life
 - The React and TypeScript communities for their excellent tools and documentation
 - Claude Sonnet 3.7 and Replit
+- Cloudflare Pages
