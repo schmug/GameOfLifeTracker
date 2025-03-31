@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Super Simple GitHub Pages Deploy
 
 on:
   push:
@@ -7,20 +7,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -42,33 +36,9 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-      
-      - name: Setup Pages
-        uses: actions/configure-pages@v2
-      
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifact
-          path: './dist'
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: build-artifact
-          
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: .
-          
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist # The folder the action should deploy
+          branch: gh-pages # The branch the action should deploy to
