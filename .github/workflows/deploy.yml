@@ -10,7 +10,6 @@ permissions:
   contents: read
   pages: write
   id-token: write
-  actions: write
 
 concurrency:
   group: "pages"
@@ -50,7 +49,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: github-pages
+          name: build-artifact
           path: './dist'
 
   deploy:
@@ -63,13 +62,12 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: github-pages
-          path: '_site'
-      
-      - name: Create GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v1
+          name: build-artifact
+          
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          path: '_site'
+          path: .
           
       - name: Deploy to GitHub Pages
         id: deployment
