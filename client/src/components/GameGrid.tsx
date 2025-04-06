@@ -19,7 +19,7 @@ interface GameGridProps {
   setGeneration: (gen: number) => void;
   setLivingCells: (count: number) => void;
   setDensity: (density: number) => void;
-  setLongestPattern: (gens: number) => void;
+  setLongestPattern: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function GameGrid({
@@ -80,7 +80,10 @@ export default function GameGrid({
       
       // Only update the longest pattern when the current stable pattern length increases
       // and exceeds the previous longest pattern
-      setLongestPattern(prevLongest => Math.max(prevLongest, newStableGenerations));
+      // Using the functional update form to ensure we compare against the latest value
+      if (newStableGenerations > 0) {
+        setLongestPattern(newStableGenerations);
+      }
     } else if (livingCount !== previousLivingCells) {
       setStableGenerations(0);
     }
@@ -215,6 +218,23 @@ export default function GameGrid({
     // If forcedState is provided, use it; otherwise toggle
     const newAlive = forcedState !== undefined ? forcedState : !cell.alive;
     
+    // Add visual effects for cell state changes
+    if (newAlive && !cell.alive) {
+      // Cell is being born - apply animation through DOM for immediate feedback
+      try {
+        const cellElement = document.querySelector(`.game-grid > div:nth-child(${rowIndex * gridSize + colIndex + 1})`);
+        if (cellElement) {
+          cellElement.classList.add('cell-born');
+          // Remove the class after animation to allow it to be reapplied next time
+          setTimeout(() => {
+            cellElement.classList.remove('cell-born');
+          }, 300);
+        }
+      } catch (e) {
+        // Silently fail if element not found - animation is non-critical
+      }
+    }
+    
     // Update cell with new state
     newGrid[rowIndex][colIndex] = {
       alive: newAlive,
@@ -223,7 +243,7 @@ export default function GameGrid({
     
     setGrid(newGrid);
     updateStats();
-  }, [gameRunning, grid, updateStats]);
+  }, [gameRunning, grid, updateStats, gridSize]);
   
   // Handle mouse down to start drawing
   const handleMouseDown = useCallback((rowIndex: number, colIndex: number) => {
@@ -335,13 +355,29 @@ export default function GameGrid({
           row.map((cell, colIndex) => (
             <div
               key={`${rowIndex}-${colIndex}`}
-              className="cell border border-grid"
+              className={`
+                cell border border-grid relative 
+                ${!gameRunning && 'hover:scale-[1.02] hover:z-10'}
+                ${cell.alive && 'cell-born'}
+                ${gameRunning ? 'game-running' : ''}
+              `}
               style={{ 
                 backgroundColor: cell.alive ? cell.color : '#F3F4F6',
-                transition: 'background-color 0.2s ease',
-                cursor: gameRunning ? 'not-allowed' : 'pointer'
+                transition: 'all 0.15s cubic-bezier(0.17, 0.67, 0.83, 0.67)',
+                cursor: gameRunning ? 'not-allowed' : 'pointer',
+                boxShadow: cell.alive ? '0 0 4px rgba(0, 0, 0, 0.15)' : 'none'
               }}
-              onMouseDown={() => handleMouseDown(rowIndex, colIndex)}
+              onMouseDown={(e) => {
+                // Add click ripple effect
+                if (!gameRunning) {
+                  const element = e.currentTarget;
+                  element.style.transform = 'scale(0.97)';
+                  setTimeout(() => {
+                    element.style.transform = '';
+                  }, 150);
+                }
+                handleMouseDown(rowIndex, colIndex);
+              }}
               onMouseEnter={() => handleMouseEnter(rowIndex, colIndex)}
               draggable="false"
               onDragStart={(e) => e.preventDefault()}

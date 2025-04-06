@@ -11,3 +11,80 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Cell birth animation */
+  @keyframes cell-birth {
+    0% {
+      transform: scale(0.85);
+      opacity: 0.7;
+      box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    }
+    50% {
+      transform: scale(1.08);
+      opacity: 1;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  /* Cell death animation */
+  @keyframes cell-death {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+    }
+    50% {
+      transform: scale(0.9);
+      opacity: 0.6;
+      box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+      box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    }
+  }
+
+  /* Glow pulse animation for active cells */
+  @keyframes glow-pulse {
+    0% {
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+    }
+    50% {
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
+    }
+    100% {
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  /* Cell hover glow effect */
+  .cell:not(.game-running):hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+    z-index: 10;
+  }
+
+  /* Cell click effect */
+  .cell:active:not(.game-running) {
+    transform: scale(0.92);
+  }
+
+  /* Cell birth animation class */
+  .cell-born {
+    animation: cell-birth 0.3s ease-out;
+  }
+
+  /* Cell death animation class */
+  .cell-died {
+    animation: cell-death 0.3s ease-in;
+  }
+
+  /* Add glow pulse to active cells in running game */
+  .game-running .cell[style*="background-color: rgb("] {
+    animation: glow-pulse 2s infinite;
+  }
+}
