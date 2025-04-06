@@ -75,14 +75,10 @@ export default function StaticHome() {
   useEffect(() => {
     if (!currentScore || !sessionId) return;
     
-    const maxGen = currentScore ? currentScore.maxGenerations : 0;
-    const maxPop = currentScore ? currentScore.maxPopulation : 0;
-    const longest = currentScore ? currentScore.longestPattern : 0;
-    
     async function updateScores() {
       try {
         // Update max generations if current generation is higher
-        if (generation > maxGen) {
+        if (generation > currentScore.maxGenerations) {
           const updatedScore = await updateHighScore(sessionId, { maxGenerations: generation });
           if (updatedScore) {
             setCurrentScore(updatedScore);
@@ -90,7 +86,7 @@ export default function StaticHome() {
         }
         
         // Update max population if current living cells count is higher
-        if (livingCells > maxPop) {
+        if (livingCells > currentScore.maxPopulation) {
           const updatedScore = await updateHighScore(sessionId, { maxPopulation: livingCells });
           if (updatedScore) {
             setCurrentScore(updatedScore);
@@ -98,7 +94,7 @@ export default function StaticHome() {
         }
         
         // Update longest pattern if current pattern length is higher
-        if (longestPattern > longest) {
+        if (longestPattern > currentScore.longestPattern) {
           const updatedScore = await updateHighScore(sessionId, { longestPattern });
           if (updatedScore) {
             setCurrentScore(updatedScore);
