@@ -4,6 +4,7 @@ import GameControls from '@/components/GameControls';
 import GameStats from '@/components/GameStats';
 import HighScores from '@/components/HighScores';
 import RuleExplanation from '@/components/RuleExplanation';
+import GameIntroduction from '@/components/GameIntroduction';
 import { getSessionId, saveHighScore, getHighScoreBySessionId, updateHighScore, getAllTimeBestScores } from '@/lib/staticStorage';
 import { HighScore } from '@shared/schema';
 
@@ -73,12 +74,14 @@ export default function StaticHome() {
   
   // Update high scores when relevant stats change
   useEffect(() => {
-    if (!currentScore || !sessionId) return;
+    if (!sessionId) return;
     
     async function updateScores() {
+      // Skip update if no currentScore exists yet
+      if (!currentScore) return;
       try {
         // Update max generations if current generation is higher
-        if (generation > currentScore.maxGenerations) {
+        if (generation > (currentScore?.maxGenerations || 0)) {
           const updatedScore = await updateHighScore(sessionId, { maxGenerations: generation });
           if (updatedScore) {
             setCurrentScore(updatedScore);
@@ -86,7 +89,7 @@ export default function StaticHome() {
         }
         
         // Update max population if current living cells count is higher
-        if (livingCells > currentScore.maxPopulation) {
+        if (livingCells > (currentScore?.maxPopulation || 0)) {
           const updatedScore = await updateHighScore(sessionId, { maxPopulation: livingCells });
           if (updatedScore) {
             setCurrentScore(updatedScore);
@@ -94,7 +97,7 @@ export default function StaticHome() {
         }
         
         // Update longest pattern if current pattern length is higher
-        if (longestPattern > currentScore.longestPattern) {
+        if (longestPattern > (currentScore?.longestPattern || 0)) {
           const updatedScore = await updateHighScore(sessionId, { longestPattern });
           if (updatedScore) {
             setCurrentScore(updatedScore);
@@ -115,6 +118,10 @@ export default function StaticHome() {
   return (
     <div className="container py-4 mx-auto">
       <h1 className="mb-8 text-4xl font-bold text-center">Conway's Game of Life</h1>
+      
+      <div className="mb-6">
+        <GameIntroduction />
+      </div>
       
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <div className="md:col-span-2">

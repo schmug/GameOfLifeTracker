@@ -5,6 +5,7 @@ import GameControls from "@/components/GameControls";
 import GameStats from "@/components/GameStats";
 import HighScores from "@/components/HighScores";
 import RuleExplanation from "@/components/RuleExplanation";
+import GameIntroduction from "@/components/GameIntroduction";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -139,6 +140,10 @@ export default function Home() {
           <h1 className="text-3xl font-semibold mb-2">Conway's Game of Life</h1>
           <p className="text-gray-600">Watch cellular automation in action</p>
         </header>
+        
+        <div className="mb-6">
+          <GameIntroduction />
+        </div>
         
         <div className="lg:flex lg:gap-8">
           {/* Game Grid Container */}
