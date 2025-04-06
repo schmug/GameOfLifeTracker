@@ -19,15 +19,23 @@
       transform: scale(0.85);
       opacity: 0.7;
       box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+      filter: brightness(0.8);
     }
     50% {
-      transform: scale(1.08);
+      transform: scale(1.12);
       opacity: 1;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+      filter: brightness(1.3) saturate(1.2);
+    }
+    75% {
+      transform: scale(0.98);
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+      filter: brightness(1.1) saturate(1.1);
     }
     100% {
       transform: scale(1);
       box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+      filter: brightness(1) saturate(1);
     }
   }
 
@@ -36,16 +44,37 @@
     0% {
       transform: scale(1);
       box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+      filter: brightness(1);
     }
     50% {
       transform: scale(0.9);
       opacity: 0.6;
-      box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+      box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+      filter: brightness(0.6) saturate(0.7);
+    }
+    75% {
+      transform: scale(0.95);
+      opacity: 0.8;
+      filter: brightness(0.8);
     }
     100% {
       transform: scale(1);
       opacity: 1;
       box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+      filter: brightness(1);
+    }
+  }
+  
+  /* Game over cell animation */
+  @keyframes cell-game-over {
+    0% {
+      filter: brightness(1) saturate(1);
+    }
+    50% {
+      filter: brightness(0.7) saturate(0.7) blur(1px);
+    }
+    100% {
+      filter: brightness(1) saturate(1);
     }
   }
 
@@ -86,5 +115,16 @@
   /* Add glow pulse to active cells in running game */
   .game-running .cell[style*="background-color: rgb("] {
     animation: glow-pulse 2s infinite;
+  }
+  
+  /* Game over cells effect */
+  .game-over-overlay-active .cell {
+    filter: grayscale(0.3);
+    transition: all 1s ease-out;
+  }
+  
+  .game-over-overlay-active .cell[style*="background-color: rgb("] {
+    animation: cell-game-over 4s infinite;
+    transition: all 0.5s ease-out;
   }
 }

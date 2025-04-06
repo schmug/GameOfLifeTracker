@@ -9,6 +9,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
+import Confetti from 'react-confetti';
 
 interface GameGridProps {
   gridSize: number;
@@ -125,13 +127,50 @@ export default function GameGrid({
   // State for game over dialog
   const [gameOverDialogOpen, setGameOverDialogOpen] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState("");
+  const [showGameOverOverlay, setShowGameOverOverlay] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [achievementMessage, setAchievementMessage] = useState<string | null>(null);
+  
+  // Effect to determine if game achievement was reached
+  const checkForAchievements = useCallback((gen: number, livingCells: number) => {
+    if (gen > 50) {
+      return "Impressive! Your pattern survived over 50 generations!";
+    } else if (livingCells > 100) {
+      return "Amazing! Your colony exceeded 100 live cells!";
+    } else if (stableGenerations > 10) {
+      return "Perfect! You created a stable pattern that lasted 10+ generations!";
+    }
+    return null;
+  }, [stableGenerations]);
   
   // Function for game over actions
   const handleGameOver = useCallback((message: string) => {
+    // Check for living cells count for achievements
+    let livingCount = 0;
+    for (let i = 0; i < gridRef.current.length; i++) {
+      for (let j = 0; j < gridRef.current[i].length; j++) {
+        if (gridRef.current[i][j].alive) {
+          livingCount++;
+        }
+      }
+    }
+    
+    // Check if we should show celebration effects
+    const achievement = checkForAchievements(generationRef.current, livingCount);
+    setAchievementMessage(achievement);
+    setShowConfetti(!!achievement);
+    
+    // Set game over message and overlay
     setGameOverMessage(message);
-    setGameOverDialogOpen(true);
+    setShowGameOverOverlay(true);
+    
+    // Slight delay before showing dialog for better visual sequence
+    setTimeout(() => {
+      setGameOverDialogOpen(true);
+    }, 800);
+    
     setGameRunning(false);
-  }, [setGameRunning]);
+  }, [setGameRunning, checkForAchievements]);
   
   // These functions are no longer needed with the simplified dialog approach
   // Users will use the existing controls in the UI to restart or randomize
@@ -308,7 +347,7 @@ export default function GameGrid({
   }, [clearGrid, randomizeGrid, stepForward]);
   
   return (
-    <div className="relative border border-grid rounded-lg shadow-sm bg-white overflow-hidden">
+    <div className={`relative border border-grid rounded-lg shadow-sm bg-white overflow-hidden ${showGameOverOverlay ? 'game-over-overlay-active' : ''}`}>
       {/* Grid painting notice */}
       {!gameRunning && (
         <div className="absolute top-4 left-4 z-10 bg-white/80 backdrop-blur-sm rounded-lg shadow-sm px-3 py-2">
@@ -386,20 +425,78 @@ export default function GameGrid({
         )}
       </div>
       
+      {/* Game Over Animated Overlay */}
+      <AnimatePresence>
+        {showGameOverOverlay && (
+          <motion.div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm z-20 flex flex-col items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="text-white text-4xl font-bold mb-4"
+            >
+              Game Over
+            </motion.div>
+            
+            {achievementMessage && (
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.8, duration: 0.5 }}
+                className="text-white/90 text-xl text-center max-w-xs mx-auto"
+              >
+                {achievementMessage}
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Celebration Confetti */}
+      {showConfetti && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          recycle={false}
+          numberOfPieces={500}
+          gravity={0.15}
+        />
+      )}
+      
       {/* Game Over Dialog */}
-      <Dialog open={gameOverDialogOpen} onOpenChange={setGameOverDialogOpen}>
+      <Dialog open={gameOverDialogOpen} onOpenChange={(open) => {
+        setGameOverDialogOpen(open);
+        if (!open) {
+          // Clean up effects when dialog closes
+          setShowGameOverOverlay(false);
+          setShowConfetti(false);
+        }
+      }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Game Over</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-2xl">Game Over</DialogTitle>
+            <DialogDescription className="text-base mt-2">
               {gameOverMessage}
+              
+              {achievementMessage && (
+                <div className="mt-4 p-3 bg-primary/10 rounded-md border border-primary/20 text-primary">
+                  <span className="font-medium">Achievement unlocked!</span>
+                  <div className="mt-1">{achievementMessage}</div>
+                </div>
+              )}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex justify-center mt-4">
+          <DialogFooter className="flex justify-center mt-6">
             <Button 
               variant="default" 
               onClick={() => setGameOverDialogOpen(false)}
-              className="w-32"
+              className="w-36 h-10 text-base"
             >
               Close
             </Button>
