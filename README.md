@@ -133,6 +133,19 @@ The Game of Life has many well-known patterns you can try creating:
 - **Styling**: Tailwind CSS
 - **Data Storage**: In-memory storage
 
+## Deploying to GitHub Pages
+
+The project includes a `GitHubPagesApp` that stores high scores in your browser's
+`localStorage`. To deploy this static version:
+
+1. Run the GitHub Actions workflow, or build manually with:
+   ```bash
+   VITE_BASE_URL=/repo-name/ npm run build
+   ```
+2. Push the contents of `dist/public` to the `gh-pages` branch.
+
+The site will then be served from `https://<user>.github.io/repo-name/`.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
