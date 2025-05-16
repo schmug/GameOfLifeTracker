@@ -32,11 +32,9 @@ jobs:
         run: npm ci
       
       - name: Build
-        run: |
-          # Modify vite.config.ts for GitHub Pages
-          sed -i 's|base: .*|base: "/conways-game-of-life/",|' vite.config.ts
-          # Build the project
-          npm run build
+        env:
+          VITE_BASE_URL: /GameOfLifeTracker/
+        run: npm run build
       
       - name: Setup Pages
         uses: actions/configure-pages@v3
