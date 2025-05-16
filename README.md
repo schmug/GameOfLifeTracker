@@ -70,6 +70,16 @@ Conway's Game of Life follows these simple rules:
 
 4. Open your browser and navigate to `http://localhost:5000`
 
+### Environment Variables
+
+`VITE_BASE_URL` sets the base URL used by Vite when building for production.
+For example when deploying to GitHub Pages:
+
+```bash
+VITE_BASE_URL=/GameOfLifeTracker/
+npm run build
+```
+
 ## How to Play
 
 1. **Create initial pattern**:
