@@ -73,7 +73,8 @@ Conway's Game of Life follows these simple rules:
 ### Environment Variables
 
 `VITE_BASE_URL` sets the base URL used by Vite when building for production.
-For example when deploying to GitHub Pages:
+If not specified, Vite defaults to `/`.
+When deploying to GitHub Pages, set it to your repository name. For example:
 
 ```bash
 VITE_BASE_URL=/GameOfLifeTracker/
