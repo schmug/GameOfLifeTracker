@@ -144,6 +144,14 @@ The Game of Life has many well-known patterns you can try creating:
 - **Styling**: Tailwind CSS
 - **Data Storage**: In-memory storage
 
+## Testing
+
+Run all unit tests with:
+
+```bash
+npm test
+```
+
 ## Deploying to GitHub Pages
 
 The project includes a `GitHubPagesApp` that stores high scores in your browser's `localStorage`. To deploy this static version:
