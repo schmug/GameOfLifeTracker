@@ -146,8 +146,7 @@ The Game of Life has many well-known patterns you can try creating:
 
 ## Deploying to GitHub Pages
 
-The project includes a `GitHubPagesApp` that stores high scores in your browser's
-`localStorage`. To deploy this static version:
+The project includes a `GitHubPagesApp` that stores high scores in your browser's `localStorage`. To deploy this static version:
 
 1. Run the GitHub Actions workflow, or build manually with:
    ```bash
