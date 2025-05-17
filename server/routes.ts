@@ -1,16 +1,16 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage, type IStorage } from "./storage";
 import { insertHighScoreSchema, updateHighScoreSchema } from "@shared/schema";
 import { z } from "zod";
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function registerRoutes(app: Express, store: IStorage = storage): Promise<Server> {
   // High Scores API Routes
   
   // Get all high scores
   app.get("/api/high-scores", async (_req, res) => {
     try {
-      const highScores = await storage.getAllHighScores();
+      const highScores = await store.getAllHighScores();
       res.json(highScores);
     } catch (error) {
       console.error("Error fetching high scores:", error);
@@ -41,7 +41,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const validatedData = insertHighScoreSchema.parse(highScoreData);
-      const newHighScore = await storage.createHighScore(validatedData);
+      const newHighScore = await store.createHighScore(validatedData);
       res.status(201).json(newHighScore);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -66,7 +66,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const validatedData = updateHighScoreSchema.parse(updateData);
       
-      const updatedHighScore = await storage.updateHighScoreBySessionId(sessionId, validatedData);
+      const updatedHighScore = await store.updateHighScoreBySessionId(sessionId, validatedData);
       
       if (!updatedHighScore) {
         return res.status(404).json({ message: "High score not found" });
@@ -86,7 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get the all time best high scores (must be defined before the dynamic :sessionId route)
   app.get("/api/high-scores/best/all-time", async (_req, res) => {
     try {
-      const bestScores = await storage.getAllTimeBestScores();
+      const bestScores = await store.getAllTimeBestScores();
       res.json(bestScores);
     } catch (error) {
       console.error("Error fetching best scores:", error);
@@ -98,7 +98,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/high-scores/:sessionId", async (req, res) => {
     try {
       const { sessionId } = req.params;
-      const highScore = await storage.getHighScoreBySessionId(sessionId);
+      const highScore = await store.getHighScoreBySessionId(sessionId);
       
       if (!highScore) {
         return res.status(404).json({ message: "High score not found" });
