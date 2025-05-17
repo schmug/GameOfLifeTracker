@@ -1,4 +1,15 @@
-import { users, type User, type InsertUser, type HighScore, type InsertHighScore, type UpdateHighScore } from "@shared/schema";
+import {
+  users,
+  highScores,
+  type User,
+  type InsertUser,
+  type HighScore,
+  type InsertHighScore,
+  type UpdateHighScore,
+} from "@shared/schema";
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
+import { eq, desc, gt } from "drizzle-orm";
 
 // modify the interface with any CRUD methods
 // you might need
@@ -138,4 +149,105 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  private db;
+
+  constructor(url: string) {
+    const client = neon(url);
+    this.db = drizzle(client);
+  }
+
+  async getUser(id: number): Promise<User | undefined> {
+    const rows = await this.db.select().from(users).where(eq(users.id, id));
+    return rows[0];
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const rows = await this.db
+      .select()
+      .from(users)
+      .where(eq(users.username, username));
+    return rows[0];
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const rows = await this.db.insert(users).values(user).returning();
+    return rows[0];
+  }
+
+  async getAllHighScores(): Promise<HighScore[]> {
+    const rows = await this.db.select().from(highScores);
+    return rows.map((r) => ({ ...r, date: r.date.toISOString() }));
+  }
+
+  async getHighScoreBySessionId(sessionId: string): Promise<HighScore | undefined> {
+    const rows = await this.db
+      .select()
+      .from(highScores)
+      .where(eq(highScores.sessionId, sessionId));
+    const row = rows[0];
+    return row ? { ...row, date: row.date.toISOString() } : undefined;
+  }
+
+  async createHighScore(highScore: InsertHighScore & { date: Date }): Promise<HighScore> {
+    const rows = await this.db.insert(highScores).values(highScore).returning();
+    const row = rows[0];
+    return { ...row, date: row.date.toISOString() };
+  }
+
+  async updateHighScoreBySessionId(
+    sessionId: string,
+    data: UpdateHighScore,
+  ): Promise<HighScore | undefined> {
+    const rows = await this.db
+      .update(highScores)
+      .set(data)
+      .where(eq(highScores.sessionId, sessionId))
+      .returning();
+    const row = rows[0];
+    return row ? { ...row, date: row.date.toISOString() } : undefined;
+  }
+
+  async getAllTimeBestScores(): Promise<{
+    maxGenerations: HighScore | null;
+    maxPopulation: HighScore | null;
+    longestPattern: HighScore | null;
+  }> {
+    const [maxGen] = await this.db
+      .select()
+      .from(highScores)
+      .where(gt(highScores.maxGenerations, 0))
+      .orderBy(desc(highScores.maxGenerations))
+      .limit(1);
+
+    const [maxPop] = await this.db
+      .select()
+      .from(highScores)
+      .where(gt(highScores.maxPopulation, 0))
+      .orderBy(desc(highScores.maxPopulation))
+      .limit(1);
+
+    const [longest] = await this.db
+      .select()
+      .from(highScores)
+      .where(gt(highScores.longestPattern, 0))
+      .orderBy(desc(highScores.longestPattern))
+      .limit(1);
+
+    const toHS = (row: any): HighScore => ({ ...row, date: row.date.toISOString() });
+
+    return {
+      maxGenerations: maxGen ? toHS(maxGen) : null,
+      maxPopulation: maxPop ? toHS(maxPop) : null,
+      longestPattern: longest ? toHS(longest) : null,
+    };
+  }
+}
+
+export let storage: IStorage = new MemStorage();
+
+export function setStorage(newStorage: IStorage) {
+  storage = newStorage;
+}
+
+
