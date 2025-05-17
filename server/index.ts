@@ -1,8 +1,19 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { DatabaseStorage, setStorage } from "./storage";
 
 const app = express();
+
+if (process.env.DATABASE_URL) {
+  try {
+    setStorage(new DatabaseStorage(process.env.DATABASE_URL));
+    log("using database storage", "storage");
+  } catch (err) {
+    log(`failed to connect to database: ${String(err)}`, "storage");
+  }
+}
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

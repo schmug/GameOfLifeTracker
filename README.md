@@ -81,6 +81,17 @@ VITE_BASE_URL=/GameOfLifeTracker/
 npm run build
 ```
 
+### Database Setup
+
+Set a `DATABASE_URL` environment variable pointing to your PostgreSQL instance.
+Run the migrations with:
+
+```bash
+npm run db:push
+```
+
+When `DATABASE_URL` is provided, the server will use the database for persisting high scores.
+
 ## How to Play
 
 1. **Create initial pattern**:
@@ -142,7 +153,7 @@ The Game of Life has many well-known patterns you can try creating:
 - **Backend**: Express.js, TypeScript
 - **State Management**: TanStack Query
 - **Styling**: Tailwind CSS
-- **Data Storage**: In-memory storage
+- **Data Storage**: In-memory or PostgreSQL storage via Drizzle ORM
 
 ## Testing
 
