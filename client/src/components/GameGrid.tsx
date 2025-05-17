@@ -204,7 +204,7 @@ export default function GameGrid({
       }
       
       // End condition 2: Pattern has stabilized (handled via stableGenerations)
-      if (stableGenerations > 10) {
+      if (stableGenerations >= 10) {
         handleGameOver('Game over! Pattern has stabilized for 10 generations.');
         return;
       }
