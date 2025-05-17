@@ -33,6 +33,7 @@ It has applications in various fields including computer science, biology, physi
 - **Game statistics**: Track generations, living cells count, and population density
 - **High score system**: Records your best achievements for maximum generations, maximum population, and longest surviving pattern
 - **All-time best scores**: View the best records across all game sessions
+- **Shareable patterns**: Copy a link to share your current grid
 
 ## Game Rules
 
@@ -105,6 +106,7 @@ When `DATABASE_URL` is provided, the server will use the database for persisting
    - Use the speed slider to control how fast generations progress
    - Click "Stop" to pause the simulation
    - Use "Step" to advance one generation at a time
+   - Click "Share" to copy a link to your current pattern
 
 3. **Adjust the grid**:
    - Use the "+" and "-" buttons on the grid to change its size
@@ -146,6 +148,11 @@ The Game of Life has many well-known patterns you can try creating:
 ### Guns and Infinite Growth
 - **Gosper Glider Gun**: Creates an endless stream of gliders
 - **Puffer Train**: Moves while leaving behind debris that evolves
+
+### Sharing Patterns
+
+Use the **Share** button to copy a link representing your current grid. Opening
+that link will load the pattern automatically.
 
 ## Technologies Used
 

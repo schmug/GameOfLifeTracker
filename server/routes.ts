@@ -4,6 +4,9 @@ import { storage, type IStorage } from "./storage";
 import { insertHighScoreSchema, updateHighScoreSchema } from "@shared/schema";
 import { z } from "zod";
 
+// in-memory store for shared patterns
+const sharedPatterns = new Map<string, string>();
+
 export async function registerRoutes(app: Express, store: IStorage = storage): Promise<Server> {
   // High Scores API Routes
   
@@ -109,6 +112,25 @@ export async function registerRoutes(app: Express, store: IStorage = storage): P
       console.error("Error fetching high score:", error);
       res.status(500).json({ message: "Failed to fetch high score" });
     }
+  });
+
+  // Share pattern routes
+  app.post("/api/share/:code", async (req, res) => {
+    const { code } = req.params;
+    const pattern = req.body?.pattern;
+    if (typeof pattern !== "string") {
+      return res.status(400).json({ message: "Invalid pattern" });
+    }
+    sharedPatterns.set(code, pattern);
+    res.json({ code });
+  });
+
+  app.get("/api/share/:code", async (req, res) => {
+    const pattern = sharedPatterns.get(req.params.code);
+    if (!pattern) {
+      return res.status(404).json({ message: "Pattern not found" });
+    }
+    res.json({ pattern });
   });
 
   const httpServer = createServer(app);

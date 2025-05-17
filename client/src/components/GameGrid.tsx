@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { calculateNextGeneration, createEmptyGrid, createRandomGrid, getRandomColor, Cell } from "@/lib/gameOfLife";
+import { deserializeGrid } from "@/lib/serialization";
 import {
   Dialog,
   DialogContent,
@@ -58,6 +59,23 @@ export default function GameGrid({
     setStableGenerations(0);
     setPreviousLivingCells(0);
   }, [gridSize, setGeneration]);
+
+  // Load shared pattern on first render if ?share=code present
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get('share');
+    if (code) {
+      fetch(`/api/share/${code}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data?.pattern) {
+            const loaded = deserializeGrid(data.pattern);
+            setGridSize(loaded.length);
+            setGrid(loaded);
+            gridRef.current = loaded;
+          }
+        });
+    }
+  }, []);
   
   // Function to update statistics based on the current grid
   const updateStats = useCallback(() => {
@@ -339,6 +357,7 @@ export default function GameGrid({
       stepForward,
       clearGrid,
       randomizeGrid,
+      getGrid: () => gridRef.current,
     };
     
     return () => {

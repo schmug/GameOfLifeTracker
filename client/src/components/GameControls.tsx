@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { nanoid } from "nanoid";
+import { serializeGrid } from "@/lib/serialization";
+import { apiRequest } from "@/lib/queryClient";
 
 interface GameControlsProps {
   gameRunning: boolean;
@@ -14,6 +17,7 @@ export default function GameControls({
   setSpeed,
 }: GameControlsProps) {
   const [speedLabel, setSpeedLabel] = useState("Normal");
+  const [shareLink, setShareLink] = useState<string | null>(null);
 
   // Start the simulation
   const startGame = () => {
@@ -49,6 +53,21 @@ export default function GameControls({
     setGameRunning(false);
     if ((window as any).gameGridAPI) {
       (window as any).gameGridAPI.randomizeGrid();
+    }
+  };
+
+  const shareGrid = async () => {
+    if (!(window as any).gameGridAPI) return;
+    const grid = (window as any).gameGridAPI.getGrid();
+    const code = nanoid(8);
+    const pattern = serializeGrid(grid);
+    await apiRequest('POST', `/api/share/${code}`, { pattern });
+    const url = `${window.location.origin}${window.location.pathname}?share=${code}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareLink(url);
+    } catch (e) {
+      setShareLink(url);
     }
   };
 
@@ -95,14 +114,20 @@ export default function GameControls({
         >
           Clear
         </button>
-        <button 
+        <button
           onClick={randomizeGrid}
           className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md font-medium hover:bg-gray-300 transition-colors"
         >
           Random
         </button>
+        <button
+          onClick={shareGrid}
+          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md font-medium hover:bg-gray-300 transition-colors"
+        >
+          Share
+        </button>
       </div>
-      
+
       <div className="mt-4">
         <label className="flex items-center space-x-2">
           <span className="text-sm font-medium">Speed: </span>
@@ -125,6 +150,12 @@ export default function GameControls({
           }}
         />
       </div>
+
+      {shareLink && (
+        <div className="mt-2 text-xs text-gray-500 break-all">
+          Share link copied: <a href={shareLink}>{shareLink}</a>
+        </div>
+      )}
     </div>
   );
 }

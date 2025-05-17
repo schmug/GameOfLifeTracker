@@ -54,3 +54,19 @@ describe('high score routes', () => {
     expect(data).toHaveProperty('maxGenerations');
   });
 });
+
+describe('share routes', () => {
+  it('stores and retrieves a pattern', async () => {
+    const res = await fetch(`${baseUrl}/api/share/abc`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pattern: '3o2b' })
+    });
+    expect(res.status).toBe(200);
+
+    const getRes = await fetch(`${baseUrl}/api/share/abc`);
+    expect(getRes.status).toBe(200);
+    const body = await getRes.json();
+    expect(body.pattern).toBe('3o2b');
+  });
+});
