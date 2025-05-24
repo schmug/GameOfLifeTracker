@@ -5,6 +5,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import StaticHome from "./pages/StaticHome";
 import NotFound from "./pages/not-found";
+import WebcamOverlay from "./pages/WebcamOverlay";
 
 function AppContent() {
   return (
@@ -12,6 +13,7 @@ function AppContent() {
       <WouterRouter base={import.meta.env.BASE_URL}>
         <Switch>
           <Route path="/" component={StaticHome} />
+          <Route path="/overlay" component={WebcamOverlay} />
           <Route component={NotFound} />
         </Switch>
       </WouterRouter>

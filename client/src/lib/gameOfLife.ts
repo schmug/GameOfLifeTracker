@@ -10,8 +10,26 @@ export function getRandomColor(): string {
   const hue = Math.floor(Math.random() * 360); // 0-359 degrees on the color wheel
   const saturation = 70 + Math.floor(Math.random() * 30); // 70-100% saturation for vibrant colors
   const lightness = 40 + Math.floor(Math.random() * 20); // 40-60% lightness for balanced brightness
-  
+
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
+
+// Rotate an HSL color by the given number of degrees
+export function rotateHue(color: string, degrees: number): string {
+  const match = color.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+  if (!match) return color;
+  let hue = (parseInt(match[1]) + degrees) % 360;
+  if (hue < 0) hue += 360;
+  const saturation = match[2];
+  const lightness = match[3];
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
+
+// Rotate all cell colors in a grid
+export function rotateGridColors(grid: Cell[][], degrees: number): Cell[][] {
+  return grid.map((row) =>
+    row.map((cell) => ({ ...cell, color: rotateHue(cell.color, degrees) }))
+  );
 }
 
 // Create an empty grid of specified size
