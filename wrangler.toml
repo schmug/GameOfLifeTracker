@@ -1,0 +1,5 @@
+name = "gameoflife-tracker"
+compatibility_date = "2025-05-17"
+
+[assets]
+directory = "./dist/public"
