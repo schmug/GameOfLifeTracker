@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { patterns } from "@/lib/patterns";
 
 interface GameControlsProps {
   gameRunning: boolean;
@@ -14,6 +15,10 @@ export default function GameControls({
   setSpeed,
 }: GameControlsProps) {
   const [speedLabel, setSpeedLabel] = useState("Normal");
+  const patternNames = Object.keys(patterns);
+  const [selectedPattern, setSelectedPattern] = useState<string>(
+    patternNames[0],
+  );
 
   // Start the simulation
   const startGame = () => {
@@ -52,6 +57,15 @@ export default function GameControls({
     }
   };
 
+  // Load selected pattern onto the grid
+  const loadSelectedPattern = () => {
+    setGameRunning(false);
+    const api = (window as any).gameGridAPI;
+    if (api && api.loadPattern) {
+      api.loadPattern(patterns[selectedPattern]);
+    }
+  };
+
   // Update speed label based on speed value
   useEffect(() => {
     if (speed <= 5) setSpeedLabel("Slow");
@@ -63,46 +77,66 @@ export default function GameControls({
   return (
     <div className="mt-4 bg-white rounded-lg shadow-sm border border-grid p-4">
       <div className="flex flex-wrap gap-3">
-        <button 
+        <button
           onClick={startGame}
           className={`px-4 py-2 rounded-md font-medium transition-colors ${
-            gameRunning 
-              ? "bg-gray-200 text-gray-700 hover:bg-gray-300" 
+            gameRunning
+              ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
               : "bg-primary text-white hover:bg-indigo-600"
           }`}
         >
           Start
         </button>
-        <button 
+        <button
           onClick={pauseGame}
           className={`px-4 py-2 rounded-md font-medium transition-colors ${
-            gameRunning 
-              ? "bg-primary text-white hover:bg-indigo-600" 
+            gameRunning
+              ? "bg-primary text-white hover:bg-indigo-600"
               : "bg-gray-200 text-gray-700 hover:bg-gray-300"
           }`}
         >
           Pause
         </button>
-        <button 
+        <button
           onClick={stepForward}
           className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md font-medium hover:bg-gray-300 transition-colors"
         >
           Next Gen
         </button>
-        <button 
+        <button
           onClick={clearGrid}
           className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md font-medium hover:bg-gray-300 transition-colors"
         >
           Clear
         </button>
-        <button 
+        <button
           onClick={randomizeGrid}
           className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md font-medium hover:bg-gray-300 transition-colors"
         >
           Random
         </button>
       </div>
-      
+
+      <div className="mt-4 flex items-center gap-2">
+        <select
+          value={selectedPattern}
+          onChange={(e) => setSelectedPattern(e.target.value)}
+          className="border rounded-md px-2 py-1 text-sm"
+        >
+          {patternNames.map((name) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={loadSelectedPattern}
+          className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md font-medium hover:bg-gray-300 transition-colors"
+        >
+          Load Pattern
+        </button>
+      </div>
+
       <div className="mt-4">
         <label className="flex items-center space-x-2">
           <span className="text-sm font-medium">Speed: </span>
@@ -116,12 +150,12 @@ export default function GameControls({
           onChange={(e) => setSpeed(parseInt(e.target.value))}
           className="w-full mt-1"
           style={{
-            WebkitAppearance: 'none',
-            appearance: 'none',
-            height: '6px',
-            background: '#E5E7EB',
-            borderRadius: '3px',
-            outline: 'none',
+            WebkitAppearance: "none",
+            appearance: "none",
+            height: "6px",
+            background: "#E5E7EB",
+            borderRadius: "3px",
+            outline: "none",
           }}
         />
       </div>
