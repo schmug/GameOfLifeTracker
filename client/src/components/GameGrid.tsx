@@ -507,6 +507,8 @@ export default function GameGrid({
                 setShowGameOverOverlay(false);
                 setShowConfetti(false);
                 setAchievementMessage(null);
+                setStableGenerations(0);
+                setPreviousLivingCells(0);
                 clearGrid();
               }}
               className="w-32 h-10 text-base"
