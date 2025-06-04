@@ -504,6 +504,9 @@ export default function GameGrid({
               variant="default" 
               onClick={() => {
                 setGameOverDialogOpen(false);
+                setShowGameOverOverlay(false);
+                setShowConfetti(false);
+                setAchievementMessage(null);
                 clearGrid();
               }}
               className="w-32 h-10 text-base"
