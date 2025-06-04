@@ -252,10 +252,10 @@ export default function GameGrid({
           return;
         }
 
-        // End condition 2: Pattern has stabilized (handled via stableGenerations)
-        if (stableGenerations >= 10) {
+        // End condition 2: Pattern has stabilized (using updated threshold of 100)
+        if (stableGenerations >= 100) {
           handleGameOver(
-            "Game over! Pattern has stabilized for 10 generations.",
+            "Game over! Pattern has stabilized for 100 generations.",
           );
           return;
         }
@@ -271,10 +271,9 @@ export default function GameGrid({
         lastUpdateTimeRef.current = timestamp;
       }
       
-      // End condition 2: Pattern has stabilized (handled via stableGenerations)
-      if (stableGenerations >= 100) {
-        handleGameOver('Game over! Pattern has stabilized for 100 generations.');
-        return;
+      // Schedule next frame if game is still running
+      if (gameRunning) {
+        animationFrameRef.current = requestAnimationFrame(gameLoop);
       }
     },
     [
