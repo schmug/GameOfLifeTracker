@@ -56,3 +56,5 @@ Uses shadcn/ui component library with Radix UI primitives and Tailwind CSS.
 ### Deployment
 - **GitHub Pages**: Static deployment using `GitHubPagesApp.tsx`
 - **Cloudflare Workers**: Static site deployment using `wrangler.toml` (deploys `dist/public`)
+  - Use `npx wrangler deploy` (NOT `npx wrangler versions upload`)
+  - Clear npm cache if facing corrupted tarball issues: `npm cache clean --force`

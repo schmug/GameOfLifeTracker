@@ -29,7 +29,8 @@
       "Bash(npm install:*)",
       "Bash(npm run deploy:*)",
       "Bash(npx wrangler:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }
