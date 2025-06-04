@@ -137,8 +137,8 @@ export default function GameGrid({
       return "Impressive! Your pattern survived over 50 generations!";
     } else if (livingCells > 100) {
       return "Amazing! Your colony exceeded 100 live cells!";
-    } else if (stableGenerations > 10) {
-      return "Perfect! You created a stable pattern that lasted 10+ generations!";
+    } else if (stableGenerations > 100) {
+      return "Perfect! You created a stable pattern that lasted 100+ generations!";
     }
     return null;
   }, [stableGenerations]);
@@ -204,8 +204,8 @@ export default function GameGrid({
       }
       
       // End condition 2: Pattern has stabilized (handled via stableGenerations)
-      if (stableGenerations >= 10) {
-        handleGameOver('Game over! Pattern has stabilized for 10 generations.');
+      if (stableGenerations >= 100) {
+        handleGameOver('Game over! Pattern has stabilized for 100 generations.');
         return;
       }
       
@@ -492,13 +492,23 @@ export default function GameGrid({
               )}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex justify-center mt-6">
+          <DialogFooter className="flex justify-center gap-3 mt-6">
             <Button 
-              variant="default" 
+              variant="outline" 
               onClick={() => setGameOverDialogOpen(false)}
-              className="w-36 h-10 text-base"
+              className="w-32 h-10 text-base"
             >
               Close
+            </Button>
+            <Button 
+              variant="default" 
+              onClick={() => {
+                setGameOverDialogOpen(false);
+                clearGrid();
+              }}
+              className="w-32 h-10 text-base"
+            >
+              New Game
             </Button>
           </DialogFooter>
         </DialogContent>
