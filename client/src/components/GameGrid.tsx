@@ -174,20 +174,17 @@ export default function GameGrid({
   );
 
   // Effect to determine if game achievement was reached
-  const checkForAchievements = useCallback(
-    (gen: number, livingCells: number) => {
-      if (gen > 50) {
-        return "Impressive! Your pattern survived over 50 generations!";
-      } else if (livingCells > 100) {
-        return "Amazing! Your colony exceeded 100 live cells!";
-      } else if (stableGenerations > 10) {
-        return "Perfect! You created a stable pattern that lasted 10+ generations!";
-      }
-      return null;
-    },
-    [stableGenerations],
-  );
-
+  const checkForAchievements = useCallback((gen: number, livingCells: number) => {
+    if (gen > 50) {
+      return "Impressive! Your pattern survived over 50 generations!";
+    } else if (livingCells > 100) {
+      return "Amazing! Your colony exceeded 100 live cells!";
+    } else if (stableGenerations > 100) {
+      return "Perfect! You created a stable pattern that lasted 100+ generations!";
+    }
+    return null;
+  }, [stableGenerations]);
+    
   // Function for game over actions
   const handleGameOver = useCallback(
     (message: string) => {
@@ -255,10 +252,10 @@ export default function GameGrid({
           return;
         }
 
-        // End condition 2: Pattern has stabilized (handled via stableGenerations)
-        if (stableGenerations >= 10) {
+        // End condition 2: Pattern has stabilized (using updated threshold of 100)
+        if (stableGenerations >= 100) {
           handleGameOver(
-            "Game over! Pattern has stabilized for 10 generations.",
+            "Game over! Pattern has stabilized for 100 generations.",
           );
           return;
         }
@@ -273,7 +270,8 @@ export default function GameGrid({
         updateStats();
         lastUpdateTimeRef.current = timestamp;
       }
-
+      
+      // Schedule next frame if game is still running
       if (gameRunning) {
         animationFrameRef.current = requestAnimationFrame(gameLoop);
       }
@@ -577,13 +575,28 @@ export default function GameGrid({
               )}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex justify-center mt-6">
-            <Button
-              variant="default"
+          <DialogFooter className="flex justify-center gap-3 mt-6">
+            <Button 
+              variant="outline" 
               onClick={() => setGameOverDialogOpen(false)}
-              className="w-36 h-10 text-base"
+              className="w-32 h-10 text-base"
             >
               Close
+            </Button>
+            <Button 
+              variant="default" 
+              onClick={() => {
+                setGameOverDialogOpen(false);
+                setShowGameOverOverlay(false);
+                setShowConfetti(false);
+                setAchievementMessage(null);
+                setStableGenerations(0);
+                setPreviousLivingCells(0);
+                clearGrid();
+              }}
+              className="w-32 h-10 text-base"
+            >
+              New Game
             </Button>
           </DialogFooter>
         </DialogContent>
